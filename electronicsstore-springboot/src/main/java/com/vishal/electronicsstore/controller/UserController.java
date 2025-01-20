@@ -2,6 +2,8 @@ package com.vishal.electronicsstore.controller;
 
 import java.util.List;
 
+import javax.validation.Valid;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -12,9 +14,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.vishal.electronicsstore.dto.APIResponseMessage;
+import com.vishal.electronicsstore.dto.PageableResponse;
 import com.vishal.electronicsstore.dto.UserDTO;
 import com.vishal.electronicsstore.service.UserService;
 
@@ -30,13 +34,15 @@ public class UserController {
     }
 
     @PostMapping
-    public ResponseEntity<UserDTO> createUser(@RequestBody UserDTO userDTO) {
+    public ResponseEntity<UserDTO> createUser(@Valid @RequestBody UserDTO userDTO) {
         UserDTO savedUserDTO = userService.createUser(userDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(savedUserDTO);
     }
 
     @PutMapping("/{userId}")
-    public ResponseEntity<UserDTO> updateUser(@PathVariable String userId, @RequestBody UserDTO userDTO) {
+    public ResponseEntity<UserDTO> updateUser(
+            @Valid @RequestBody UserDTO userDTO,
+            @PathVariable String userId) {
         UserDTO updatedUserDTO = userService.updateUser(userDTO, userId);
         return ResponseEntity.ok(updatedUserDTO);
     }
@@ -53,8 +59,12 @@ public class UserController {
     }
 
     @GetMapping
-    public ResponseEntity<List<UserDTO>> getAllUsers() {
-        return ResponseEntity.ok(userService.getAllUsers());
+    public ResponseEntity<PageableResponse<UserDTO>> getAllUsers(
+            @RequestParam(defaultValue = "0", required = false) int pageNumber,
+            @RequestParam(defaultValue = "5", required = false) int pageSize,
+            @RequestParam(defaultValue = "name", required = false) String sortBy,
+            @RequestParam(defaultValue = "asc", required = false) String sortDirec) {
+        return ResponseEntity.ok(userService.getAllUsers(pageNumber, pageSize, sortBy, sortDirec));
     }
 
     @GetMapping("/{userId}")

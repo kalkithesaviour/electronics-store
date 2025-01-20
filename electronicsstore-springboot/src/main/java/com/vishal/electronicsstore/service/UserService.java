@@ -2,6 +2,7 @@ package com.vishal.electronicsstore.service;
 
 import java.util.List;
 
+import com.vishal.electronicsstore.dto.PageableResponse;
 import com.vishal.electronicsstore.dto.UserDTO;
 
 public interface UserService {
@@ -12,7 +13,7 @@ public interface UserService {
 
     void deleteUser(String userId);
 
-    List<UserDTO> getAllUsers();
+    PageableResponse<UserDTO> getAllUsers(int pageNumber, int pageSize, String sortBy, String sortDirec);
 
     UserDTO getUserById(String userId);
 
