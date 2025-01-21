@@ -1,12 +1,18 @@
 package com.vishal.electronicsstore.controller;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.StreamUtils;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -16,21 +22,32 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.vishal.electronicsstore.dto.APIResponseMessage;
+import com.vishal.electronicsstore.dto.ImageResponse;
 import com.vishal.electronicsstore.dto.PageableResponse;
 import com.vishal.electronicsstore.dto.UserDTO;
+import com.vishal.electronicsstore.service.FileService;
 import com.vishal.electronicsstore.service.UserService;
+
+import lombok.extern.slf4j.Slf4j;
 
 @RestController
 @RequestMapping("/user")
+@Slf4j
 public class UserController {
 
+    @Value("${user.profile.image.path}")
+    private String imagePath;
+
     private final UserService userService;
+    private final FileService fileService;
 
     @Autowired
-    public UserController(UserService userService) {
+    public UserController(UserService userService, FileService fileService) {
         this.userService = userService;
+        this.fileService = fileService;
     }
 
     @PostMapping
@@ -49,7 +66,7 @@ public class UserController {
 
     @DeleteMapping("/{userId}")
     public ResponseEntity<APIResponseMessage> deleteUser(@PathVariable String userId) {
-        userService.deleteUser(userId);
+        userService.deleteUser(userId, imagePath);
         APIResponseMessage message = APIResponseMessage.builder()
                 .message("User deleted successfully")
                 .success(true)
@@ -80,6 +97,38 @@ public class UserController {
     @GetMapping("/search/{keyword}")
     public ResponseEntity<List<UserDTO>> searchUsers(@PathVariable String keyword) {
         return ResponseEntity.ok(userService.searchUsers(keyword));
+    }
+
+    @PostMapping("/image/{userId}")
+    public ResponseEntity<ImageResponse> uploadUserImage(
+            @PathVariable String userId,
+            @RequestParam MultipartFile userImage) throws IOException {
+        String imageName = fileService.uploadFile(userImage, imagePath);
+
+        UserDTO userDTO = userService.getUserById(userId);
+        userDTO.setImageName(imageName);
+        userService.updateUser(userDTO, userId);
+
+        ImageResponse imageResponse = ImageResponse.builder()
+                .imageName(imageName)
+                .message("Image uploaded successfully")
+                .success(true)
+                .status(HttpStatus.CREATED)
+                .build();
+        return ResponseEntity.status(HttpStatus.CREATED).body(imageResponse);
+    }
+
+    @GetMapping("/image/{userId}")
+    public void serveUserImage(
+            @PathVariable String userId,
+            HttpServletResponse response) throws IOException {
+        UserDTO userDTO = userService.getUserById(userId);
+        log.info("User image name : {}", userDTO.getImageName());
+
+        InputStream resource = fileService.getResource(imagePath, userDTO.getImageName());
+
+        response.setContentType(MediaType.IMAGE_JPEG_VALUE);
+        StreamUtils.copy(resource, response.getOutputStream());
     }
 
 }

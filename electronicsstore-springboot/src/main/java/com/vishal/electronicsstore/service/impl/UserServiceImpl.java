@@ -1,5 +1,9 @@
 package com.vishal.electronicsstore.service.impl;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.UUID;
 
@@ -19,7 +23,10 @@ import com.vishal.electronicsstore.repository.UserRepository;
 import com.vishal.electronicsstore.service.UserService;
 import com.vishal.electronicsstore.util.PageableUtil;
 
+import lombok.extern.slf4j.Slf4j;
+
 @Service
+@Slf4j
 public class UserServiceImpl implements UserService {
 
     private static final String USER_NOT_FOUND_MESSAGE = "User not found: ";
@@ -60,9 +67,17 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void deleteUser(String userId) {
+    public void deleteUser(String userId, String imagePath) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException(USER_NOT_FOUND_MESSAGE + userId));
+
+        Path path = Paths.get(imagePath, user.getImageName());
+        try {
+            Files.delete(path);
+        } catch (IOException e) {
+            log.error("User image not found in folder!");
+            e.printStackTrace();
+        }
 
         userRepository.delete(user);
     }

@@ -36,7 +36,7 @@ public class FileServiceImpl implements FileService {
                 || extension.equalsIgnoreCase(".jpeg")) {
             String fileName = UUID.randomUUID().toString();
             String fileNameWithExtension = fileName + extension;
-            String fullPath = path + File.separator + fileNameWithExtension;
+            String fullPath = Paths.get(path, fileNameWithExtension).toString();
             File folder = new File(path);
             if (!folder.exists()) {
                 folder.mkdirs();
@@ -50,7 +50,7 @@ public class FileServiceImpl implements FileService {
 
     @Override
     public InputStream getResource(String path, String name) throws FileNotFoundException {
-        String fullPath = path + File.separator + name;
+        String fullPath = Paths.get(path, name).toString();
         return new FileInputStream(fullPath);
     }
 
