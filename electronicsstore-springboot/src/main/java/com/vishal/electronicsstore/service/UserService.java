@@ -1,7 +1,5 @@
 package com.vishal.electronicsstore.service;
 
-import java.util.List;
-
 import com.vishal.electronicsstore.dto.PageableResponse;
 import com.vishal.electronicsstore.dto.UserDTO;
 
@@ -19,6 +17,7 @@ public interface UserService {
 
     UserDTO getUserByEmail(String email);
 
-    List<UserDTO> searchUsers(String keyword);
+    PageableResponse<UserDTO> searchUsers(String keyword, int pageNumber, int pageSize, String sortBy,
+            String sortDirec);
 
 }

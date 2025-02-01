@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.List;
 import java.util.UUID;
 
 import org.modelmapper.ModelMapper;
@@ -88,10 +87,7 @@ public class UserServiceImpl implements UserService {
             int pageSize,
             String sortBy,
             String sortDirec) {
-        Sort sort = sortDirec.equalsIgnoreCase("desc")
-                ? Sort.by(sortBy).descending()
-                : Sort.by(sortBy).ascending();
-        Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
+        Pageable pageable = createPageable(pageNumber, pageSize, sortBy, sortDirec);
         Page<User> usersPage = userRepository.findAll(pageable);
         return PageableUtil.getPageableResponse(usersPage, UserDTO.class, modelMapper);
     }
@@ -113,9 +109,15 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<UserDTO> searchUsers(String keyword) {
-        List<User> users = userRepository.findByNameContaining(keyword);
-        return users.stream().map(this::entityToDto).toList();
+    public PageableResponse<UserDTO> searchUsers(
+            String keyword,
+            int pageNumber,
+            int pageSize,
+            String sortBy,
+            String sortDirec) {
+        Pageable pageable = createPageable(pageNumber, pageSize, sortBy, sortDirec);
+        Page<User> usersPage = userRepository.findByNameContaining(keyword, pageable);
+        return PageableUtil.getPageableResponse(usersPage, UserDTO.class, modelMapper);
     }
 
     private User dtoToEntity(UserDTO userDTO) {
@@ -124,6 +126,17 @@ public class UserServiceImpl implements UserService {
 
     private UserDTO entityToDto(User savedUser) {
         return modelMapper.map(savedUser, UserDTO.class);
+    }
+
+    private Pageable createPageable(
+            int pageNumber,
+            int pageSize,
+            String sortBy,
+            String sortDirec) {
+        Sort sort = sortDirec.equalsIgnoreCase("desc")
+                ? Sort.by(sortBy).descending()
+                : Sort.by(sortBy).ascending();
+        return PageRequest.of(pageNumber, pageSize, sort);
     }
 
 }

@@ -2,7 +2,6 @@ package com.vishal.electronicsstore.controller;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.List;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
@@ -91,8 +90,13 @@ public class CategoryController {
     }
 
     @GetMapping("/search/{keyword}")
-    public ResponseEntity<List<CategoryDTO>> searchCategories(@PathVariable String keyword) {
-        return ResponseEntity.ok(categoryService.searchCategories(keyword));
+    public ResponseEntity<PageableResponse<CategoryDTO>> searchCategories(
+            @PathVariable String keyword,
+            @RequestParam(defaultValue = "0", required = false) int pageNumber,
+            @RequestParam(defaultValue = "5", required = false) int pageSize,
+            @RequestParam(defaultValue = "title", required = false) String sortBy,
+            @RequestParam(defaultValue = "asc", required = false) String sortDirec) {
+        return ResponseEntity.ok(categoryService.searchCategories(keyword, pageNumber, pageSize, sortBy, sortDirec));
     }
 
     @PostMapping("/image/{categoryId}")

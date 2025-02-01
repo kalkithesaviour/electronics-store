@@ -1,7 +1,5 @@
 package com.vishal.electronicsstore.service;
 
-import java.util.List;
-
 import com.vishal.electronicsstore.dto.CategoryDTO;
 import com.vishal.electronicsstore.dto.PageableResponse;
 
@@ -17,6 +15,7 @@ public interface CategoryService {
 
     CategoryDTO get(String categoryId);
 
-    List<CategoryDTO> searchCategories(String keyword);
+    PageableResponse<CategoryDTO> searchCategories(String keyword, int pageNumber, int pageSize, String sortBy,
+            String sortDirec);
 
 }

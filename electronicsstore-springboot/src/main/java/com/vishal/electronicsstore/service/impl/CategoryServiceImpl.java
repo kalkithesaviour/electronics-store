@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.List;
 import java.util.UUID;
 
 import org.modelmapper.ModelMapper;
@@ -83,10 +82,7 @@ public class CategoryServiceImpl implements CategoryService {
             int pageSize,
             String sortBy,
             String sortDirec) {
-        Sort sort = sortDirec.equalsIgnoreCase("desc")
-                ? Sort.by(sortBy).descending()
-                : Sort.by(sortBy).ascending();
-        Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
+        Pageable pageable = createPageable(pageNumber, pageSize, sortBy, sortDirec);
         Page<Category> categoriesPage = categoryRepository.findAll(pageable);
         return PageableUtil.getPageableResponse(categoriesPage, CategoryDTO.class, modelMapper);
     }
@@ -100,9 +96,15 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public List<CategoryDTO> searchCategories(String keyword) {
-        List<Category> categories = categoryRepository.findByTitleContaining(keyword);
-        return categories.stream().map(this::entityToDto).toList();
+    public PageableResponse<CategoryDTO> searchCategories(
+            String keyword,
+            int pageNumber,
+            int pageSize,
+            String sortBy,
+            String sortDirec) {
+        Pageable pageable = createPageable(pageNumber, pageSize, sortBy, sortDirec);
+        Page<Category> categoriesPage = categoryRepository.findByTitleContaining(keyword, pageable);
+        return PageableUtil.getPageableResponse(categoriesPage, CategoryDTO.class, modelMapper);
     }
 
     private Category dtoToEntity(CategoryDTO categoryDTO) {
@@ -111,6 +113,17 @@ public class CategoryServiceImpl implements CategoryService {
 
     private CategoryDTO entityToDto(Category savedCategory) {
         return modelMapper.map(savedCategory, CategoryDTO.class);
+    }
+
+    private Pageable createPageable(
+            int pageNumber,
+            int pageSize,
+            String sortBy,
+            String sortDirec) {
+        Sort sort = sortDirec.equalsIgnoreCase("desc")
+                ? Sort.by(sortBy).descending()
+                : Sort.by(sortBy).ascending();
+        return PageRequest.of(pageNumber, pageSize, sort);
     }
 
 }
