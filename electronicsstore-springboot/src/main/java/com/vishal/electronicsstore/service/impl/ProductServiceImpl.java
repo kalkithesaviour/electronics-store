@@ -17,8 +17,10 @@ import org.springframework.stereotype.Service;
 
 import com.vishal.electronicsstore.dto.PageableResponse;
 import com.vishal.electronicsstore.dto.ProductDTO;
+import com.vishal.electronicsstore.entity.Category;
 import com.vishal.electronicsstore.entity.Product;
 import com.vishal.electronicsstore.exception.ResourceNotFoundException;
+import com.vishal.electronicsstore.repository.CategoryRepository;
 import com.vishal.electronicsstore.repository.ProductRepository;
 import com.vishal.electronicsstore.service.ProductService;
 import com.vishal.electronicsstore.util.PageableUtil;
@@ -30,14 +32,18 @@ import lombok.extern.slf4j.Slf4j;
 public class ProductServiceImpl implements ProductService {
 
     private static final String PRODUCT_NOT_FOUND_MESSAGE = "Product not found: ";
+    private static final String CATEGORY_NOT_FOUND_MESSAGE = "Category not found: ";
 
     private final ProductRepository productRepository;
     private final ModelMapper modelMapper;
+    private final CategoryRepository categoryRepository;
 
     @Autowired
-    public ProductServiceImpl(ProductRepository productRepository, ModelMapper modelMapper) {
+    public ProductServiceImpl(ProductRepository productRepository, ModelMapper modelMapper,
+            CategoryRepository categoryRepository) {
         this.productRepository = productRepository;
         this.modelMapper = modelMapper;
+        this.categoryRepository = categoryRepository;
     }
 
     @Override
@@ -143,6 +149,51 @@ public class ProductServiceImpl implements ProductService {
                 ? Sort.by(sortBy).descending()
                 : Sort.by(sortBy).ascending();
         return PageRequest.of(pageNumber, pageSize, sort);
+    }
+
+    @Override
+    public ProductDTO createProductWithCategory(ProductDTO productDTO, String categoryId) {
+        Category category = categoryRepository.findById(categoryId)
+                .orElseThrow(() -> new ResourceNotFoundException(CATEGORY_NOT_FOUND_MESSAGE + categoryId));
+
+        Product product = dtoToEntity(productDTO);
+
+        String productId = UUID.randomUUID().toString();
+        product.setProductId(productId);
+        product.setAddedDate(new Date());
+        product.setCategory(category);
+
+        Product savedProduct = productRepository.save(product);
+        return entityToDto(savedProduct);
+    }
+
+    @Override
+    public ProductDTO updateCategoryOfProduct(String productId, String categoryId) {
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new ResourceNotFoundException(PRODUCT_NOT_FOUND_MESSAGE + productId));
+
+        Category category = categoryRepository.findById(categoryId)
+                .orElseThrow(() -> new ResourceNotFoundException(CATEGORY_NOT_FOUND_MESSAGE + categoryId));
+
+        product.setCategory(category);
+        Product savedProduct = productRepository.save(product);
+        return entityToDto(savedProduct);
+    }
+
+    @Override
+    public PageableResponse<ProductDTO> getAllProductsOfACategory(
+            String categoryId,
+            int pageNumber,
+            int pageSize,
+            String sortBy,
+            String sortDirec) {
+
+        Category category = categoryRepository.findById(categoryId)
+                .orElseThrow(() -> new ResourceNotFoundException(CATEGORY_NOT_FOUND_MESSAGE + categoryId));
+
+        Pageable pageable = createPageable(pageNumber, pageSize, sortBy, sortDirec);
+        Page<Product> productsPage = productRepository.findByCategory(category, pageable);
+        return PageableUtil.getPageableResponse(productsPage, ProductDTO.class, modelMapper);
     }
 
 }

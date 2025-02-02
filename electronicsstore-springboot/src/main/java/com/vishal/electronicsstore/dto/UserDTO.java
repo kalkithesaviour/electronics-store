@@ -38,6 +38,6 @@ public class UserDTO {
     private String about;
 
     @ImageName
-    private String imageName;
+    private String userImage;
 
 }

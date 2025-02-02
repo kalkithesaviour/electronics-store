@@ -37,4 +37,6 @@ public class ProductDTO {
 
     private String productImage;
 
+    private CategoryDTO category;
+
 }

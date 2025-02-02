@@ -55,7 +55,7 @@ public class CategoryServiceImpl implements CategoryService {
 
         category.setTitle(categoryDTO.getTitle());
         category.setDescription(categoryDTO.getDescription());
-        category.setCoverImage(categoryDTO.getCoverImage());
+        category.setCategoryImage(categoryDTO.getCategoryImage());
         Category updatedCategory = categoryRepository.save(category);
         return entityToDto(updatedCategory);
     }
@@ -65,7 +65,7 @@ public class CategoryServiceImpl implements CategoryService {
         Category category = categoryRepository.findById(categoryId)
                 .orElseThrow(() -> new ResourceNotFoundException(CATEGORY_NOT_FOUND_MESSAGE + categoryId));
 
-        Path path = Paths.get(imagePath, category.getCoverImage());
+        Path path = Paths.get(imagePath, category.getCategoryImage());
         try {
             Files.delete(path);
         } catch (IOException e) {

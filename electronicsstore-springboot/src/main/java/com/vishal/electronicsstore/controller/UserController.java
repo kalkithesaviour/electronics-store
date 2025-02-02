@@ -37,7 +37,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class UserController {
 
-    @Value("${user.profile.image.path}")
+    @Value("${user.image.path}")
     private String imagePath;
 
     private final UserService userService;
@@ -110,7 +110,7 @@ public class UserController {
         String imageName = fileService.uploadFile(userImage, imagePath);
 
         UserDTO userDTO = userService.getUserById(userId);
-        userDTO.setImageName(imageName);
+        userDTO.setUserImage(imageName);
         userService.updateUser(userDTO, userId);
 
         ImageResponse imageResponse = ImageResponse.builder()
@@ -127,9 +127,9 @@ public class UserController {
             @PathVariable String userId,
             HttpServletResponse response) throws IOException {
         UserDTO userDTO = userService.getUserById(userId);
-        log.info("User image name : {}", userDTO.getImageName());
+        log.info("User image name : {}", userDTO.getUserImage());
 
-        InputStream resource = fileService.getResource(imagePath, userDTO.getImageName());
+        InputStream resource = fileService.getResource(imagePath, userDTO.getUserImage());
 
         response.setContentType(MediaType.IMAGE_JPEG_VALUE);
         StreamUtils.copy(resource, response.getOutputStream());

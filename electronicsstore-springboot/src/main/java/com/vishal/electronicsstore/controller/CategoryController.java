@@ -27,8 +27,10 @@ import com.vishal.electronicsstore.dto.APIResponseMessage;
 import com.vishal.electronicsstore.dto.CategoryDTO;
 import com.vishal.electronicsstore.dto.ImageResponse;
 import com.vishal.electronicsstore.dto.PageableResponse;
+import com.vishal.electronicsstore.dto.ProductDTO;
 import com.vishal.electronicsstore.service.CategoryService;
 import com.vishal.electronicsstore.service.FileService;
+import com.vishal.electronicsstore.service.ProductService;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -37,16 +39,19 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class CategoryController {
 
-    @Value("${category.cover.image.path}")
+    @Value("${category.image.path}")
     private String imagePath;
 
     private final CategoryService categoryService;
     private final FileService fileService;
+    private final ProductService productService;
 
     @Autowired
-    public CategoryController(CategoryService categoryService, FileService fileService) {
+    public CategoryController(CategoryService categoryService, FileService fileService,
+            ProductService productService) {
         this.categoryService = categoryService;
         this.fileService = fileService;
+        this.productService = productService;
     }
 
     @PostMapping
@@ -106,7 +111,7 @@ public class CategoryController {
         String imageName = fileService.uploadFile(categoryImage, imagePath);
 
         CategoryDTO categoryDTO = categoryService.get(categoryId);
-        categoryDTO.setCoverImage(imageName);
+        categoryDTO.setCategoryImage(imageName);
         categoryService.update(categoryDTO, categoryId);
 
         ImageResponse imageResponse = ImageResponse.builder()
@@ -123,12 +128,44 @@ public class CategoryController {
             @PathVariable String categoryId,
             HttpServletResponse response) throws IOException {
         CategoryDTO categoryDTO = categoryService.get(categoryId);
-        log.info("Category image name : {}", categoryDTO.getCoverImage());
+        log.info("Category image name : {}", categoryDTO.getCategoryImage());
 
-        InputStream resource = fileService.getResource(imagePath, categoryDTO.getCoverImage());
+        InputStream resource = fileService.getResource(imagePath, categoryDTO.getCategoryImage());
 
         response.setContentType(MediaType.IMAGE_JPEG_VALUE);
         StreamUtils.copy(resource, response.getOutputStream());
+    }
+
+    @PostMapping("/{categoryId}/product")
+    public ResponseEntity<ProductDTO> createProductWithCategory(
+            @PathVariable String categoryId,
+            @RequestBody ProductDTO productDTO) {
+
+        ProductDTO productWithCategory = productService.createProductWithCategory(productDTO, categoryId);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(productWithCategory);
+    }
+
+    @PutMapping("/{categoryId}/product/{productId}")
+    public ResponseEntity<ProductDTO> updateCategoryOfProduct(
+            @PathVariable String categoryId,
+            @PathVariable String productId) {
+
+        ProductDTO updatedProduct = productService.updateCategoryOfProduct(productId, categoryId);
+
+        return ResponseEntity.ok(updatedProduct);
+    }
+
+    @GetMapping("/{categoryId}/product")
+    public ResponseEntity<PageableResponse<ProductDTO>> getAllProductsOfACategory(
+            @PathVariable String categoryId,
+            @RequestParam(defaultValue = "0", required = false) int pageNumber,
+            @RequestParam(defaultValue = "5", required = false) int pageSize,
+            @RequestParam(defaultValue = "title", required = false) String sortBy,
+            @RequestParam(defaultValue = "asc", required = false) String sortDirec) {
+
+        return ResponseEntity.ok(productService.getAllProductsOfACategory(
+                categoryId, pageNumber, pageSize, sortBy, sortDirec));
     }
 
 }
