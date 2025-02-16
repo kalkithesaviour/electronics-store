@@ -35,7 +35,7 @@ import com.vishal.electronicsstore.service.ProductService;
 import lombok.extern.slf4j.Slf4j;
 
 @RestController
-@RequestMapping("/category")
+@RequestMapping("/categories")
 @Slf4j
 public class CategoryController {
 

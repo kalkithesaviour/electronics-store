@@ -33,7 +33,7 @@ import com.vishal.electronicsstore.service.FileService;
 import lombok.extern.slf4j.Slf4j;
 
 @RestController
-@RequestMapping("/product")
+@RequestMapping("/products")
 @Slf4j
 public class ProductController {
 
