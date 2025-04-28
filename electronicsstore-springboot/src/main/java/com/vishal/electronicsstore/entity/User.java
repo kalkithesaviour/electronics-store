@@ -17,7 +17,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @Builder
 @Entity
-@Table(name = "users")
+@Table(name = "user")
 public class User {
 
     @Id
@@ -37,7 +37,6 @@ public class User {
     @Column(length = 1000)
     private String about;
 
-    @Column(name = "user_image_name")
-    private String userImage;
+    private String userImageName;
 
 }

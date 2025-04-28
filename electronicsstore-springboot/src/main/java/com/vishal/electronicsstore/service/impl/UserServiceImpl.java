@@ -59,7 +59,7 @@ public class UserServiceImpl implements UserService {
         user.setPassword(userDTO.getPassword());
         user.setGender(userDTO.getGender());
         user.setAbout(userDTO.getAbout());
-        user.setUserImage(userDTO.getUserImage());
+        user.setUserImageName(userDTO.getUserImageName());
 
         User updatedUser = userRepository.save(user);
         return entityToDto(updatedUser);
@@ -70,7 +70,7 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException(USER_NOT_FOUND_MESSAGE + userId));
 
-        Path path = Paths.get(imagePath, user.getUserImage());
+        Path path = Paths.get(imagePath, user.getUserImageName());
         try {
             Files.delete(path);
         } catch (IOException e) {

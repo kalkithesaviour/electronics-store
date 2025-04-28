@@ -110,7 +110,7 @@ public class UserController {
         String imageName = fileService.uploadFile(userImage, imagePath);
 
         UserDTO userDTO = userService.getUserById(userId);
-        userDTO.setUserImage(imageName);
+        userDTO.setUserImageName(imageName);
         userService.updateUser(userDTO, userId);
 
         ImageResponse imageResponse = ImageResponse.builder()
@@ -127,9 +127,9 @@ public class UserController {
             @PathVariable String userId,
             HttpServletResponse response) throws IOException {
         UserDTO userDTO = userService.getUserById(userId);
-        log.info("User image name : {}", userDTO.getUserImage());
+        log.info("User image name : {}", userDTO.getUserImageName());
 
-        InputStream resource = fileService.getResource(imagePath, userDTO.getUserImage());
+        InputStream resource = fileService.getResource(imagePath, userDTO.getUserImageName());
 
         response.setContentType(MediaType.IMAGE_JPEG_VALUE);
         StreamUtils.copy(resource, response.getOutputStream());
