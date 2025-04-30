@@ -23,23 +23,24 @@ import lombok.Setter;
 @AllArgsConstructor
 @Builder
 @Entity
-public class CartItem {
+public class OrderItem {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int cartItemId;
+    private int orderItemId;
 
     @OneToOne
     @JoinColumn(name = "product_id")
     private Product product;
 
-    private int quantityOfCartItem;
+    private int quantity;
 
-    private int priceOfCartItem;
+    private int priceOfOrderItem;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "cart_id")
+    @JoinColumn(name = "order_id")
     @JsonBackReference
-    private Cart cart;
+    private Order order;
 
 }
+

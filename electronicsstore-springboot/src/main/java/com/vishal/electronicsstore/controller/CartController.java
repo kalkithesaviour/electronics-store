@@ -30,13 +30,13 @@ public class CartController {
         this.cartService = cartService;
     }
 
-    @GetMapping("/{userId}")
+    @GetMapping("/user/{userId}")
     public ResponseEntity<CartDTO> getCart(@PathVariable String userId) {
         CartDTO cartDTO = cartService.getCartByUserId(userId);
         return ResponseEntity.ok(cartDTO);
     }
 
-    @PostMapping("/{userId}")
+    @PostMapping("/user/{userId}")
     public ResponseEntity<CartDTO> addItemToCart(
             @RequestBody CartItemDTO cartItemDTO,
             @PathVariable String userId) {

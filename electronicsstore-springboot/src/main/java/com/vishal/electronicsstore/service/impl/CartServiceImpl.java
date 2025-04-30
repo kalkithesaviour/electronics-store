@@ -1,7 +1,6 @@
 package com.vishal.electronicsstore.service.impl;
 
 import java.util.Date;
-import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
@@ -54,7 +53,7 @@ public class CartServiceImpl implements CartService {
     @Override
     public CartDTO addCartItemToCart(String userId, CartItemDTO cartItemDTO) {
         String productId = cartItemDTO.getProductId();
-        int quantity = cartItemDTO.getQuantity();
+        int quantity = cartItemDTO.getQuantityOfCartItem();
 
         if (quantity <= 0) {
             throw new BadAPIRequestException("Requested quantity is not valid!");
@@ -79,22 +78,19 @@ public class CartServiceImpl implements CartService {
 
         // If cart items already present then update them
         AtomicReference<Boolean> isCartItemsUpdated = new AtomicReference<>(false);
-        List<CartItem> cartItems = cart.getCartItems();
-        List<CartItem> updatedCartItems = cartItems.stream().map(item -> {
+        cart.getCartItems().stream().map(item -> {
             if (item.getProduct().getProductId().equals(productId)) {
-                item.setQuantity(quantity);
-                item.setTotalPrice(quantity * product.getDiscountedPrice());
+                item.setQuantityOfCartItem(quantity);
+                item.setPriceOfCartItem(quantity * product.getDiscountedPrice());
                 isCartItemsUpdated.set(true);
             }
             return item;
         }).collect(Collectors.toList());
 
-        cart.setCartItems(updatedCartItems);
-
         if (!isCartItemsUpdated.get()) {
             CartItem cartItem = CartItem.builder()
-                    .quantity(quantity)
-                    .totalPrice(quantity * product.getDiscountedPrice())
+                    .quantityOfCartItem(quantity)
+                    .priceOfCartItem(quantity * product.getDiscountedPrice())
                     .cart(cart)
                     .product(product)
                     .build();

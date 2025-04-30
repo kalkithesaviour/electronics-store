@@ -13,6 +13,6 @@ public class CartItemDTO {
 
     private String productId;
 
-    private int quantity;
+    private int quantityOfCartItem;
 
 }

@@ -7,7 +7,6 @@ import javax.validation.constraints.Size;
 import com.vishal.electronicsstore.validator.ImageName;
 
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -16,7 +15,6 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 public class UserDTO {
 
     private String userId;
