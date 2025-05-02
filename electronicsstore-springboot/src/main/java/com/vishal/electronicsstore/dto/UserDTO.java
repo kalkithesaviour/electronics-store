@@ -4,6 +4,8 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
+import java.util.List;
+
 import com.vishal.electronicsstore.validator.ImageName;
 
 import lombok.AllArgsConstructor;
@@ -19,8 +21,8 @@ public class UserDTO {
 
     private String userId;
 
-    @Size(min = 3, max = 25, message = "Invalid name!")
-    private String name;
+    @Size(min = 3, max = 25, message = "Invalid full name!")
+    private String fullName;
 
     @Email(message = "Invalid email!")
     @NotBlank(message = "Email is required!")
@@ -34,6 +36,8 @@ public class UserDTO {
 
     @NotBlank(message = "Write something about yourself!")
     private String about;
+
+    private List<RoleDTO> roles;
 
     @ImageName
     private String userImageName;

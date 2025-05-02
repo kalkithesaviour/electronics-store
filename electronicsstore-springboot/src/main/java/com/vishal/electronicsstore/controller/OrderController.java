@@ -7,6 +7,7 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -36,12 +37,14 @@ public class OrderController {
         this.orderService = orderService;
     }
 
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @GetMapping("/user/{userId}")
     public ResponseEntity<List<OrderDTO>> getOrdersOfUser(@PathVariable String userId) {
         List<OrderDTO> ordersOfUser = orderService.getOrdersOfUser(userId);
         return ResponseEntity.ok(ordersOfUser);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping
     public ResponseEntity<PageableResponse<OrderDTO>> getOrders(
             @RequestParam(defaultValue = "0", required = false) int pageNumber,
@@ -52,12 +55,14 @@ public class OrderController {
         return ResponseEntity.ok(allOrders);
     }
 
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @PostMapping
     public ResponseEntity<OrderDTO> createOrder(@Valid @RequestBody CreateOrderRequest createOrderRequest) {
         OrderDTO createdOrder = orderService.createOrder(createOrderRequest);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdOrder);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{orderId}")
     public ResponseEntity<APIResponseMessage> removeOrder(@PathVariable String orderId) {
         orderService.removeOrder(orderId);

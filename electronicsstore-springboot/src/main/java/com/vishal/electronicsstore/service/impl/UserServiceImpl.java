@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 import java.util.UUID;
 
 import org.modelmapper.ModelMapper;
@@ -11,13 +12,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import com.vishal.electronicsstore.dto.PageableResponse;
 import com.vishal.electronicsstore.dto.UserDTO;
+import com.vishal.electronicsstore.entity.Role;
 import com.vishal.electronicsstore.entity.User;
 import com.vishal.electronicsstore.exception.ResourceNotFoundException;
+import com.vishal.electronicsstore.repository.RoleRepository;
 import com.vishal.electronicsstore.repository.UserRepository;
 import com.vishal.electronicsstore.service.UserService;
 import com.vishal.electronicsstore.util.PageableUtil;
@@ -32,21 +36,31 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final ModelMapper modelMapper;
+    private final PasswordEncoder passwordEncoder;
+    private final RoleRepository roleRepository;
 
     @Autowired
-    public UserServiceImpl(UserRepository userRepository, ModelMapper modelMapper) {
+    public UserServiceImpl(
+            UserRepository userRepository,
+            ModelMapper modelMapper,
+            PasswordEncoder passwordEncoder,
+            RoleRepository roleRepository) {
         this.userRepository = userRepository;
         this.modelMapper = modelMapper;
+        this.passwordEncoder = passwordEncoder;
+        this.roleRepository = roleRepository;
     }
 
     @Override
     public UserDTO createUser(UserDTO userDTO) {
         String userId = UUID.randomUUID().toString();
         userDTO.setUserId(userId);
-
         User user = dtoToEntity(userDTO);
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        Role roleNormal = roleRepository.findByRoleName("ROLE_USER")
+                .orElseThrow(() -> new ResourceNotFoundException("Role not found in Database!"));
+        user.setRoles(List.of(roleNormal));
         User savedUser = userRepository.save(user);
-
         return entityToDto(savedUser);
     }
 
@@ -55,8 +69,8 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException(USER_NOT_FOUND_MESSAGE + userId));
 
-        user.setName(userDTO.getName());
-        user.setPassword(userDTO.getPassword());
+        user.setFullName(userDTO.getFullName());
+        user.setPassword(passwordEncoder.encode(userDTO.getPassword()));
         user.setGender(userDTO.getGender());
         user.setAbout(userDTO.getAbout());
         user.setUserImageName(userDTO.getUserImageName());
@@ -116,7 +130,7 @@ public class UserServiceImpl implements UserService {
             String sortBy,
             String sortDirec) {
         Pageable pageable = createPageable(pageNumber, pageSize, sortBy, sortDirec);
-        Page<User> usersPage = userRepository.findByNameContaining(keyword, pageable);
+        Page<User> usersPage = userRepository.findByFullNameContaining(keyword, pageable);
         return PageableUtil.getPageableResponse(usersPage, UserDTO.class, modelMapper);
     }
 
