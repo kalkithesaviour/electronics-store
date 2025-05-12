@@ -37,6 +37,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     }
 
     @Override
+    protected boolean shouldNotFilter(
+            @NonNull HttpServletRequest request) throws ServletException {
+        String path = request.getServletPath();
+        return path.equals("/auth/generate-token");
+    }
+
+    @Override
     protected void doFilterInternal(
             @NonNull HttpServletRequest request,
             @NonNull HttpServletResponse response,
@@ -52,16 +59,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 username = jwtHelper.getUsernameFromToken(token);
                 log.info("Username: " + username);
             } catch (IllegalArgumentException e) {
-                log.error("Illegal argument while fetching username!" + e.getMessage());
+                log.error("Invalid token! " + e.getMessage());
             } catch (ExpiredJwtException e) {
-                log.error("Expired JWT!" + e.getMessage());
+                log.error("Expired JWT! " + e.getMessage());
             } catch (MalformedJwtException e) {
-                log.error("Invalid token!" + e.getMessage());
+                log.error("Malformed token! " + e.getMessage());
             } catch (Exception e) {
-                log.error("Unexpected error while parsing the token!", e);
+                log.error("Unexpected error while parsing the token! ", e);
             }
         } else {
-            log.info("Invalid Header!");
+            log.error("Invalid Authorization Header!");
         }
 
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {

@@ -17,7 +17,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserDTO {
+public class UserDto {
 
     private String userId;
 
@@ -37,7 +37,7 @@ public class UserDTO {
     @NotBlank(message = "Write something about yourself!")
     private String about;
 
-    private List<RoleDTO> roles;
+    private List<RoleDto> roles;
 
     @ImageName
     private String userImageName;

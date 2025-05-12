@@ -16,7 +16,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import com.vishal.electronicsstore.dto.PageableResponse;
-import com.vishal.electronicsstore.dto.ProductDTO;
+import com.vishal.electronicsstore.dto.ProductDto;
 import com.vishal.electronicsstore.entity.Category;
 import com.vishal.electronicsstore.entity.Product;
 import com.vishal.electronicsstore.exception.ResourceNotFoundException;
@@ -47,28 +47,28 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public ProductDTO create(ProductDTO productDTO) {
+    public ProductDto create(ProductDto productDto) {
         String productId = UUID.randomUUID().toString();
-        productDTO.setProductId(productId);
-        productDTO.setAddedDate(new Date());
-        Product product = dtoToEntity(productDTO);
+        productDto.setProductId(productId);
+        productDto.setAddedDate(new Date());
+        Product product = dtoToEntity(productDto);
         Product savedProduct = productRepository.save(product);
         return entityToDto(savedProduct);
     }
 
     @Override
-    public ProductDTO update(ProductDTO productDTO, String productId) {
+    public ProductDto update(ProductDto productDto, String productId) {
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new ResourceNotFoundException(PRODUCT_NOT_FOUND_MESSAGE + productId));
 
-        product.setTitle(productDTO.getTitle());
-        product.setDescription(productDTO.getDescription());
-        product.setPrice(productDTO.getPrice());
-        product.setDiscountedPrice(productDTO.getDiscountedPrice());
-        product.setQuantity(productDTO.getQuantity());
-        product.setLive(productDTO.isLive());
-        product.setStock(productDTO.isStock());
-        product.setProductImage(productDTO.getProductImage());
+        product.setTitle(productDto.getTitle());
+        product.setDescription(productDto.getDescription());
+        product.setPrice(productDto.getPrice());
+        product.setDiscountedPrice(productDto.getDiscountedPrice());
+        product.setQuantity(productDto.getQuantity());
+        product.setLive(productDto.isLive());
+        product.setStock(productDto.isStock());
+        product.setProductImage(productDto.getProductImage());
 
         Product updatedProduct = productRepository.save(product);
         return entityToDto(updatedProduct);
@@ -91,7 +91,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public ProductDTO get(String productId) {
+    public ProductDto get(String productId) {
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new ResourceNotFoundException(PRODUCT_NOT_FOUND_MESSAGE + productId));
 
@@ -99,29 +99,29 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public PageableResponse<ProductDTO> getAll(
+    public PageableResponse<ProductDto> getAll(
             int pageNumber,
             int pageSize,
             String sortBy,
             String sortDirec) {
         Pageable pageable = createPageable(pageNumber, pageSize, sortBy, sortDirec);
         Page<Product> productsPage = productRepository.findAll(pageable);
-        return PageableUtil.getPageableResponse(productsPage, ProductDTO.class, modelMapper);
+        return PageableUtil.getPageableResponse(productsPage, ProductDto.class, modelMapper);
     }
 
     @Override
-    public PageableResponse<ProductDTO> getAllLive(
+    public PageableResponse<ProductDto> getAllLive(
             int pageNumber,
             int pageSize,
             String sortBy,
             String sortDirec) {
         Pageable pageable = createPageable(pageNumber, pageSize, sortBy, sortDirec);
         Page<Product> productsPage = productRepository.findByLiveTrue(pageable);
-        return PageableUtil.getPageableResponse(productsPage, ProductDTO.class, modelMapper);
+        return PageableUtil.getPageableResponse(productsPage, ProductDto.class, modelMapper);
     }
 
     @Override
-    public PageableResponse<ProductDTO> searchProducts(
+    public PageableResponse<ProductDto> searchProducts(
             String keyword,
             int pageNumber,
             int pageSize,
@@ -129,15 +129,15 @@ public class ProductServiceImpl implements ProductService {
             String sortDirec) {
         Pageable pageable = createPageable(pageNumber, pageSize, sortBy, sortDirec);
         Page<Product> productsPage = productRepository.findByTitleContaining(keyword, pageable);
-        return PageableUtil.getPageableResponse(productsPage, ProductDTO.class, modelMapper);
+        return PageableUtil.getPageableResponse(productsPage, ProductDto.class, modelMapper);
     }
 
-    private Product dtoToEntity(ProductDTO productDTO) {
-        return modelMapper.map(productDTO, Product.class);
+    private Product dtoToEntity(ProductDto productDto) {
+        return modelMapper.map(productDto, Product.class);
     }
 
-    private ProductDTO entityToDto(Product savedProduct) {
-        return modelMapper.map(savedProduct, ProductDTO.class);
+    private ProductDto entityToDto(Product savedProduct) {
+        return modelMapper.map(savedProduct, ProductDto.class);
     }
 
     private Pageable createPageable(
@@ -152,11 +152,11 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public ProductDTO createProductWithCategory(ProductDTO productDTO, String categoryId) {
+    public ProductDto createProductWithCategory(ProductDto productDto, String categoryId) {
         Category category = categoryRepository.findById(categoryId)
                 .orElseThrow(() -> new ResourceNotFoundException(CATEGORY_NOT_FOUND_MESSAGE + categoryId));
 
-        Product product = dtoToEntity(productDTO);
+        Product product = dtoToEntity(productDto);
 
         String productId = UUID.randomUUID().toString();
         product.setProductId(productId);
@@ -168,7 +168,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public ProductDTO updateCategoryOfProduct(String productId, String categoryId) {
+    public ProductDto updateCategoryOfProduct(String productId, String categoryId) {
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new ResourceNotFoundException(PRODUCT_NOT_FOUND_MESSAGE + productId));
 
@@ -181,7 +181,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public PageableResponse<ProductDTO> getAllProductsOfACategory(
+    public PageableResponse<ProductDto> getAllProductsOfACategory(
             String categoryId,
             int pageNumber,
             int pageSize,
@@ -193,7 +193,7 @@ public class ProductServiceImpl implements ProductService {
 
         Pageable pageable = createPageable(pageNumber, pageSize, sortBy, sortDirec);
         Page<Product> productsPage = productRepository.findByCategory(category, pageable);
-        return PageableUtil.getPageableResponse(productsPage, ProductDTO.class, modelMapper);
+        return PageableUtil.getPageableResponse(productsPage, ProductDto.class, modelMapper);
     }
 
 }

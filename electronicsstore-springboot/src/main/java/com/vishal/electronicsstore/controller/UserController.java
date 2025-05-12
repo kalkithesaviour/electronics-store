@@ -26,7 +26,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.vishal.electronicsstore.dto.APIResponseMessage;
 import com.vishal.electronicsstore.dto.ImageResponse;
 import com.vishal.electronicsstore.dto.PageableResponse;
-import com.vishal.electronicsstore.dto.UserDTO;
+import com.vishal.electronicsstore.dto.UserDto;
 import com.vishal.electronicsstore.service.FileService;
 import com.vishal.electronicsstore.service.UserService;
 
@@ -50,17 +50,17 @@ public class UserController {
     }
 
     @PostMapping
-    public ResponseEntity<UserDTO> createUser(@Valid @RequestBody UserDTO userDTO) {
-        UserDTO savedUserDTO = userService.createUser(userDTO);
-        return ResponseEntity.status(HttpStatus.CREATED).body(savedUserDTO);
+    public ResponseEntity<UserDto> createUser(@Valid @RequestBody UserDto userDto) {
+        UserDto savedUserDto = userService.createUser(userDto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(savedUserDto);
     }
 
     @PutMapping("/{userId}")
-    public ResponseEntity<UserDTO> updateUser(
-            @Valid @RequestBody UserDTO userDTO,
+    public ResponseEntity<UserDto> updateUser(
+            @Valid @RequestBody UserDto userDto,
             @PathVariable String userId) {
-        UserDTO updatedUserDTO = userService.updateUser(userDTO, userId);
-        return ResponseEntity.ok(updatedUserDTO);
+        UserDto updatedUserDto = userService.updateUser(userDto, userId);
+        return ResponseEntity.ok(updatedUserDto);
     }
 
     @DeleteMapping("/{userId}")
@@ -75,7 +75,7 @@ public class UserController {
     }
 
     @GetMapping
-    public ResponseEntity<PageableResponse<UserDTO>> getAllUsers(
+    public ResponseEntity<PageableResponse<UserDto>> getAllUsers(
             @RequestParam(defaultValue = "0", required = false) int pageNumber,
             @RequestParam(defaultValue = "5", required = false) int pageSize,
             @RequestParam(defaultValue = "name", required = false) String sortBy,
@@ -84,17 +84,17 @@ public class UserController {
     }
 
     @GetMapping("/{userId}")
-    public ResponseEntity<UserDTO> getUserById(@PathVariable String userId) {
+    public ResponseEntity<UserDto> getUserById(@PathVariable String userId) {
         return ResponseEntity.ok(userService.getUserById(userId));
     }
 
     @GetMapping("/email/{email}")
-    public ResponseEntity<UserDTO> getUserByEmail(@PathVariable String email) {
+    public ResponseEntity<UserDto> getUserByEmail(@PathVariable String email) {
         return ResponseEntity.ok(userService.getUserByEmail(email));
     }
 
     @GetMapping("/search/{keyword}")
-    public ResponseEntity<PageableResponse<UserDTO>> searchUsers(
+    public ResponseEntity<PageableResponse<UserDto>> searchUsers(
             @PathVariable String keyword,
             @RequestParam(defaultValue = "0", required = false) int pageNumber,
             @RequestParam(defaultValue = "5", required = false) int pageSize,
@@ -109,9 +109,9 @@ public class UserController {
             @RequestParam MultipartFile userImage) throws IOException {
         String imageName = fileService.uploadFile(userImage, imagePath);
 
-        UserDTO userDTO = userService.getUserById(userId);
-        userDTO.setUserImageName(imageName);
-        userService.updateUser(userDTO, userId);
+        UserDto userDto = userService.getUserById(userId);
+        userDto.setUserImageName(imageName);
+        userService.updateUser(userDto, userId);
 
         ImageResponse imageResponse = ImageResponse.builder()
                 .imageName(imageName)
@@ -126,10 +126,10 @@ public class UserController {
     public void serveUserImage(
             @PathVariable String userId,
             HttpServletResponse response) throws IOException {
-        UserDTO userDTO = userService.getUserById(userId);
-        log.info("User image name : {}", userDTO.getUserImageName());
+        UserDto userDto = userService.getUserById(userId);
+        log.info("User image name : {}", userDto.getUserImageName());
 
-        InputStream resource = fileService.getResource(imagePath, userDTO.getUserImageName());
+        InputStream resource = fileService.getResource(imagePath, userDto.getUserImageName());
 
         response.setContentType(MediaType.IMAGE_JPEG_VALUE);
         StreamUtils.copy(resource, response.getOutputStream());

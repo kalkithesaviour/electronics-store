@@ -1,23 +1,23 @@
 package com.vishal.electronicsstore.service;
 
 import com.vishal.electronicsstore.dto.PageableResponse;
-import com.vishal.electronicsstore.dto.UserDTO;
+import com.vishal.electronicsstore.dto.UserDto;
 
 public interface UserService {
 
-    UserDTO createUser(UserDTO userDTO);
+    UserDto createUser(UserDto userDto);
 
-    UserDTO updateUser(UserDTO userDTO, String userId);
+    UserDto updateUser(UserDto userDto, String userId);
 
     void deleteUser(String userId, String path);
 
-    PageableResponse<UserDTO> getAllUsers(int pageNumber, int pageSize, String sortBy, String sortDirec);
+    PageableResponse<UserDto> getAllUsers(int pageNumber, int pageSize, String sortBy, String sortDirec);
 
-    UserDTO getUserById(String userId);
+    UserDto getUserById(String userId);
 
-    UserDTO getUserByEmail(String email);
+    UserDto getUserByEmail(String email);
 
-    PageableResponse<UserDTO> searchUsers(String keyword, int pageNumber, int pageSize, String sortBy,
+    PageableResponse<UserDto> searchUsers(String keyword, int pageNumber, int pageSize, String sortBy,
             String sortDirec);
 
 }

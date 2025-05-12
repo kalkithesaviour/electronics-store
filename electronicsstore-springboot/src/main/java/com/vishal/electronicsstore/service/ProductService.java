@@ -1,30 +1,30 @@
 package com.vishal.electronicsstore.service;
 
 import com.vishal.electronicsstore.dto.PageableResponse;
-import com.vishal.electronicsstore.dto.ProductDTO;
+import com.vishal.electronicsstore.dto.ProductDto;
 
 public interface ProductService {
 
-    ProductDTO create(ProductDTO productDTO);
+    ProductDto create(ProductDto productDto);
 
-    ProductDTO update(ProductDTO productDTO, String productId);
+    ProductDto update(ProductDto productDto, String productId);
 
     void delete(String productId, String imagePath);
 
-    PageableResponse<ProductDTO> getAll(int pageNumber, int pageSize, String sortBy, String sortDirec);
+    PageableResponse<ProductDto> getAll(int pageNumber, int pageSize, String sortBy, String sortDirec);
 
-    PageableResponse<ProductDTO> getAllLive(int pageNumber, int pageSize, String sortBy, String sortDirec);
+    PageableResponse<ProductDto> getAllLive(int pageNumber, int pageSize, String sortBy, String sortDirec);
 
-    ProductDTO get(String productId);
+    ProductDto get(String productId);
 
-    PageableResponse<ProductDTO> searchProducts(String keyword, int pageNumber, int pageSize, String sortBy,
+    PageableResponse<ProductDto> searchProducts(String keyword, int pageNumber, int pageSize, String sortBy,
             String sortDirec);
 
-    ProductDTO createProductWithCategory(ProductDTO productDTO, String categoryId);
+    ProductDto createProductWithCategory(ProductDto productDto, String categoryId);
 
-    ProductDTO updateCategoryOfProduct(String productId, String categoryId);
+    ProductDto updateCategoryOfProduct(String productId, String categoryId);
 
-    PageableResponse<ProductDTO> getAllProductsOfACategory(String categoryId, int pageNumber, int pageSize,
+    PageableResponse<ProductDto> getAllProductsOfACategory(String categoryId, int pageNumber, int pageSize,
             String sortBy, String sortDirec);
 
 }

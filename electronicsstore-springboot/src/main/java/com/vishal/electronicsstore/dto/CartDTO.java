@@ -15,13 +15,13 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class CartDTO {
+public class CartDto {
 
     private String cartId;
 
     private Date createdAt;
 
-    private UserDTO user;
+    private UserDto user;
 
     private List<CartItem> cartItems = new ArrayList<>();
 

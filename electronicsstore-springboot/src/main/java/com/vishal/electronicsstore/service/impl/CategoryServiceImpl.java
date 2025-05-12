@@ -14,7 +14,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
-import com.vishal.electronicsstore.dto.CategoryDTO;
+import com.vishal.electronicsstore.dto.CategoryDto;
 import com.vishal.electronicsstore.dto.PageableResponse;
 import com.vishal.electronicsstore.entity.Category;
 import com.vishal.electronicsstore.exception.ResourceNotFoundException;
@@ -40,22 +40,22 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public CategoryDTO create(CategoryDTO categoryDTO) {
+    public CategoryDto create(CategoryDto categoryDto) {
         String categoryId = UUID.randomUUID().toString();
-        categoryDTO.setCategoryId(categoryId);
-        Category category = dtoToEntity(categoryDTO);
+        categoryDto.setCategoryId(categoryId);
+        Category category = dtoToEntity(categoryDto);
         Category savedCategory = categoryRepository.save(category);
         return entityToDto(savedCategory);
     }
 
     @Override
-    public CategoryDTO update(CategoryDTO categoryDTO, String categoryId) {
+    public CategoryDto update(CategoryDto categoryDto, String categoryId) {
         Category category = categoryRepository.findById(categoryId)
                 .orElseThrow(() -> new ResourceNotFoundException(CATEGORY_NOT_FOUND_MESSAGE + categoryId));
 
-        category.setTitle(categoryDTO.getTitle());
-        category.setDescription(categoryDTO.getDescription());
-        category.setCategoryImage(categoryDTO.getCategoryImage());
+        category.setTitle(categoryDto.getTitle());
+        category.setDescription(categoryDto.getDescription());
+        category.setCategoryImage(categoryDto.getCategoryImage());
         Category updatedCategory = categoryRepository.save(category);
         return entityToDto(updatedCategory);
     }
@@ -77,18 +77,18 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public PageableResponse<CategoryDTO> getAll(
+    public PageableResponse<CategoryDto> getAll(
             int pageNumber,
             int pageSize,
             String sortBy,
             String sortDirec) {
         Pageable pageable = createPageable(pageNumber, pageSize, sortBy, sortDirec);
         Page<Category> categoriesPage = categoryRepository.findAll(pageable);
-        return PageableUtil.getPageableResponse(categoriesPage, CategoryDTO.class, modelMapper);
+        return PageableUtil.getPageableResponse(categoriesPage, CategoryDto.class, modelMapper);
     }
 
     @Override
-    public CategoryDTO get(String categoryId) {
+    public CategoryDto get(String categoryId) {
         Category category = categoryRepository.findById(categoryId)
                 .orElseThrow(() -> new ResourceNotFoundException(CATEGORY_NOT_FOUND_MESSAGE + categoryId));
 
@@ -96,7 +96,7 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public PageableResponse<CategoryDTO> searchCategories(
+    public PageableResponse<CategoryDto> searchCategories(
             String keyword,
             int pageNumber,
             int pageSize,
@@ -104,15 +104,15 @@ public class CategoryServiceImpl implements CategoryService {
             String sortDirec) {
         Pageable pageable = createPageable(pageNumber, pageSize, sortBy, sortDirec);
         Page<Category> categoriesPage = categoryRepository.findByTitleContaining(keyword, pageable);
-        return PageableUtil.getPageableResponse(categoriesPage, CategoryDTO.class, modelMapper);
+        return PageableUtil.getPageableResponse(categoriesPage, CategoryDto.class, modelMapper);
     }
 
-    private Category dtoToEntity(CategoryDTO categoryDTO) {
-        return modelMapper.map(categoryDTO, Category.class);
+    private Category dtoToEntity(CategoryDto categoryDto) {
+        return modelMapper.map(categoryDto, Category.class);
     }
 
-    private CategoryDTO entityToDto(Category savedCategory) {
-        return modelMapper.map(savedCategory, CategoryDTO.class);
+    private CategoryDto entityToDto(Category savedCategory) {
+        return modelMapper.map(savedCategory, CategoryDto.class);
     }
 
     private Pageable createPageable(

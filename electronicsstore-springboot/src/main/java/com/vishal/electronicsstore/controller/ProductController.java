@@ -24,7 +24,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.vishal.electronicsstore.dto.APIResponseMessage;
-import com.vishal.electronicsstore.dto.ProductDTO;
+import com.vishal.electronicsstore.dto.ProductDto;
 import com.vishal.electronicsstore.dto.ImageResponse;
 import com.vishal.electronicsstore.dto.PageableResponse;
 import com.vishal.electronicsstore.service.ProductService;
@@ -50,17 +50,17 @@ public class ProductController {
     }
 
     @PostMapping
-    public ResponseEntity<ProductDTO> createProduct(@Valid @RequestBody ProductDTO productDTO) {
-        ProductDTO savedProductDTO = productService.create(productDTO);
-        return ResponseEntity.status(HttpStatus.CREATED).body(savedProductDTO);
+    public ResponseEntity<ProductDto> createProduct(@Valid @RequestBody ProductDto productDto) {
+        ProductDto savedProductDto = productService.create(productDto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(savedProductDto);
     }
 
     @PutMapping("/{productId}")
-    public ResponseEntity<ProductDTO> updateProduct(
-            @RequestBody ProductDTO productDTO,
+    public ResponseEntity<ProductDto> updateProduct(
+            @RequestBody ProductDto productDto,
             @PathVariable String productId) {
-        ProductDTO updatedProductDTO = productService.update(productDTO, productId);
-        return ResponseEntity.ok(updatedProductDTO);
+        ProductDto updatedProductDto = productService.update(productDto, productId);
+        return ResponseEntity.ok(updatedProductDto);
     }
 
     @DeleteMapping("/{productId}")
@@ -75,7 +75,7 @@ public class ProductController {
     }
 
     @GetMapping
-    public ResponseEntity<PageableResponse<ProductDTO>> getAllProducts(
+    public ResponseEntity<PageableResponse<ProductDto>> getAllProducts(
             @RequestParam(defaultValue = "0", required = false) int pageNumber,
             @RequestParam(defaultValue = "5", required = false) int pageSize,
             @RequestParam(defaultValue = "title", required = false) String sortBy,
@@ -84,7 +84,7 @@ public class ProductController {
     }
 
     @GetMapping("/live")
-    public ResponseEntity<PageableResponse<ProductDTO>> getAllLiveProducts(
+    public ResponseEntity<PageableResponse<ProductDto>> getAllLiveProducts(
             @RequestParam(defaultValue = "0", required = false) int pageNumber,
             @RequestParam(defaultValue = "5", required = false) int pageSize,
             @RequestParam(defaultValue = "title", required = false) String sortBy,
@@ -93,13 +93,13 @@ public class ProductController {
     }
 
     @GetMapping("/{productId}")
-    public ResponseEntity<ProductDTO> getProduct(@PathVariable String productId) {
-        ProductDTO productDTO = productService.get(productId);
-        return ResponseEntity.ok(productDTO);
+    public ResponseEntity<ProductDto> getProduct(@PathVariable String productId) {
+        ProductDto productDto = productService.get(productId);
+        return ResponseEntity.ok(productDto);
     }
 
     @GetMapping("/search/{keyword}")
-    public ResponseEntity<PageableResponse<ProductDTO>> searchProducts(
+    public ResponseEntity<PageableResponse<ProductDto>> searchProducts(
             @PathVariable String keyword,
             @RequestParam(defaultValue = "0", required = false) int pageNumber,
             @RequestParam(defaultValue = "5", required = false) int pageSize,
@@ -114,9 +114,9 @@ public class ProductController {
             @RequestParam MultipartFile productImage) throws IOException {
         String imageName = fileService.uploadFile(productImage, imagePath);
 
-        ProductDTO productDTO = productService.get(productId);
-        productDTO.setProductImage(imageName);
-        productService.update(productDTO, productId);
+        ProductDto productDto = productService.get(productId);
+        productDto.setProductImage(imageName);
+        productService.update(productDto, productId);
 
         ImageResponse imageResponse = ImageResponse.builder()
                 .imageName(imageName)
@@ -131,10 +131,10 @@ public class ProductController {
     public void serveProductImage(
             @PathVariable String productId,
             HttpServletResponse response) throws IOException {
-        ProductDTO productDTO = productService.get(productId);
-        log.info("Product image name : {}", productDTO.getProductImage());
+        ProductDto productDto = productService.get(productId);
+        log.info("Product image name : {}", productDto.getProductImage());
 
-        InputStream resource = fileService.getResource(imagePath, productDTO.getProductImage());
+        InputStream resource = fileService.getResource(imagePath, productDto.getProductImage());
 
         response.setContentType(MediaType.IMAGE_JPEG_VALUE);
         StreamUtils.copy(resource, response.getOutputStream());

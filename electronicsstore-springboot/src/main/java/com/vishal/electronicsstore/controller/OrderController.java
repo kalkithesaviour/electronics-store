@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.vishal.electronicsstore.dto.APIResponseMessage;
 import com.vishal.electronicsstore.dto.CreateOrderRequest;
-import com.vishal.electronicsstore.dto.OrderDTO;
+import com.vishal.electronicsstore.dto.OrderDto;
 import com.vishal.electronicsstore.dto.PageableResponse;
 import com.vishal.electronicsstore.service.OrderService;
 
@@ -39,26 +39,26 @@ public class OrderController {
 
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @GetMapping("/user/{userId}")
-    public ResponseEntity<List<OrderDTO>> getOrdersOfUser(@PathVariable String userId) {
-        List<OrderDTO> ordersOfUser = orderService.getOrdersOfUser(userId);
+    public ResponseEntity<List<OrderDto>> getOrdersOfUser(@PathVariable String userId) {
+        List<OrderDto> ordersOfUser = orderService.getOrdersOfUser(userId);
         return ResponseEntity.ok(ordersOfUser);
     }
 
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping
-    public ResponseEntity<PageableResponse<OrderDTO>> getOrders(
+    public ResponseEntity<PageableResponse<OrderDto>> getOrders(
             @RequestParam(defaultValue = "0", required = false) int pageNumber,
             @RequestParam(defaultValue = "5", required = false) int pageSize,
             @RequestParam(defaultValue = "orderDate", required = false) String sortBy,
             @RequestParam(defaultValue = "asc", required = false) String sortDirec) {
-        PageableResponse<OrderDTO> allOrders = orderService.getOrders(pageNumber, pageSize, sortBy, sortDirec);
+        PageableResponse<OrderDto> allOrders = orderService.getOrders(pageNumber, pageSize, sortBy, sortDirec);
         return ResponseEntity.ok(allOrders);
     }
 
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @PostMapping
-    public ResponseEntity<OrderDTO> createOrder(@Valid @RequestBody CreateOrderRequest createOrderRequest) {
-        OrderDTO createdOrder = orderService.createOrder(createOrderRequest);
+    public ResponseEntity<OrderDto> createOrder(@Valid @RequestBody CreateOrderRequest createOrderRequest) {
+        OrderDto createdOrder = orderService.createOrder(createOrderRequest);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdOrder);
     }
 

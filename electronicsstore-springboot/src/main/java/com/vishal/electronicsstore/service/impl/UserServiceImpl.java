@@ -17,7 +17,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import com.vishal.electronicsstore.dto.PageableResponse;
-import com.vishal.electronicsstore.dto.UserDTO;
+import com.vishal.electronicsstore.dto.UserDto;
 import com.vishal.electronicsstore.entity.Role;
 import com.vishal.electronicsstore.entity.User;
 import com.vishal.electronicsstore.exception.ResourceNotFoundException;
@@ -52,10 +52,10 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserDTO createUser(UserDTO userDTO) {
+    public UserDto createUser(UserDto userDto) {
         String userId = UUID.randomUUID().toString();
-        userDTO.setUserId(userId);
-        User user = dtoToEntity(userDTO);
+        userDto.setUserId(userId);
+        User user = dtoToEntity(userDto);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         Role roleNormal = roleRepository.findByRoleName("ROLE_USER")
                 .orElseThrow(() -> new ResourceNotFoundException("Role not found in Database!"));
@@ -65,15 +65,15 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserDTO updateUser(UserDTO userDTO, String userId) {
+    public UserDto updateUser(UserDto userDto, String userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException(USER_NOT_FOUND_MESSAGE + userId));
 
-        user.setFullName(userDTO.getFullName());
-        user.setPassword(passwordEncoder.encode(userDTO.getPassword()));
-        user.setGender(userDTO.getGender());
-        user.setAbout(userDTO.getAbout());
-        user.setUserImageName(userDTO.getUserImageName());
+        user.setFullName(userDto.getFullName());
+        user.setPassword(passwordEncoder.encode(userDto.getPassword()));
+        user.setGender(userDto.getGender());
+        user.setAbout(userDto.getAbout());
+        user.setUserImageName(userDto.getUserImageName());
 
         User updatedUser = userRepository.save(user);
         return entityToDto(updatedUser);
@@ -96,18 +96,18 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public PageableResponse<UserDTO> getAllUsers(
+    public PageableResponse<UserDto> getAllUsers(
             int pageNumber,
             int pageSize,
             String sortBy,
             String sortDirec) {
         Pageable pageable = createPageable(pageNumber, pageSize, sortBy, sortDirec);
         Page<User> usersPage = userRepository.findAll(pageable);
-        return PageableUtil.getPageableResponse(usersPage, UserDTO.class, modelMapper);
+        return PageableUtil.getPageableResponse(usersPage, UserDto.class, modelMapper);
     }
 
     @Override
-    public UserDTO getUserById(String userId) {
+    public UserDto getUserById(String userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException(USER_NOT_FOUND_MESSAGE + userId));
 
@@ -115,7 +115,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserDTO getUserByEmail(String email) {
+    public UserDto getUserByEmail(String email) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new ResourceNotFoundException(USER_NOT_FOUND_MESSAGE + email));
 
@@ -123,7 +123,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public PageableResponse<UserDTO> searchUsers(
+    public PageableResponse<UserDto> searchUsers(
             String keyword,
             int pageNumber,
             int pageSize,
@@ -131,15 +131,15 @@ public class UserServiceImpl implements UserService {
             String sortDirec) {
         Pageable pageable = createPageable(pageNumber, pageSize, sortBy, sortDirec);
         Page<User> usersPage = userRepository.findByFullNameContaining(keyword, pageable);
-        return PageableUtil.getPageableResponse(usersPage, UserDTO.class, modelMapper);
+        return PageableUtil.getPageableResponse(usersPage, UserDto.class, modelMapper);
     }
 
-    private User dtoToEntity(UserDTO userDTO) {
-        return modelMapper.map(userDTO, User.class);
+    private User dtoToEntity(UserDto userDto) {
+        return modelMapper.map(userDto, User.class);
     }
 
-    private UserDTO entityToDto(User savedUser) {
-        return modelMapper.map(savedUser, UserDTO.class);
+    private UserDto entityToDto(User savedUser) {
+        return modelMapper.map(savedUser, UserDto.class);
     }
 
     private Pageable createPageable(

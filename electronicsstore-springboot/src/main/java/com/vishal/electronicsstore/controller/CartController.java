@@ -13,8 +13,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.vishal.electronicsstore.dto.APIResponseMessage;
-import com.vishal.electronicsstore.dto.CartDTO;
-import com.vishal.electronicsstore.dto.CartItemDTO;
+import com.vishal.electronicsstore.dto.CartDto;
+import com.vishal.electronicsstore.dto.CartItemDto;
 import com.vishal.electronicsstore.service.CartService;
 
 import lombok.extern.slf4j.Slf4j;
@@ -33,18 +33,18 @@ public class CartController {
 
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @GetMapping("/user/{userId}")
-    public ResponseEntity<CartDTO> getCart(@PathVariable String userId) {
-        CartDTO cartDTO = cartService.getCartByUserId(userId);
-        return ResponseEntity.ok(cartDTO);
+    public ResponseEntity<CartDto> getCart(@PathVariable String userId) {
+        CartDto cartDto = cartService.getCartByUserId(userId);
+        return ResponseEntity.ok(cartDto);
     }
 
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @PostMapping("/user/{userId}")
-    public ResponseEntity<CartDTO> addItemToCart(
-            @RequestBody CartItemDTO cartItemDTO,
+    public ResponseEntity<CartDto> addItemToCart(
+            @RequestBody CartItemDto cartItemDto,
             @PathVariable String userId) {
-        CartDTO updatedCartDTO = cartService.addCartItemToCart(userId, cartItemDTO);
-        return ResponseEntity.ok(updatedCartDTO);
+        CartDto updatedCartDto = cartService.addCartItemToCart(userId, cartItemDto);
+        return ResponseEntity.ok(updatedCartDto);
     }
 
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")

@@ -15,7 +15,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import com.vishal.electronicsstore.dto.CreateOrderRequest;
-import com.vishal.electronicsstore.dto.OrderDTO;
+import com.vishal.electronicsstore.dto.OrderDto;
 import com.vishal.electronicsstore.dto.PageableResponse;
 import com.vishal.electronicsstore.entity.Cart;
 import com.vishal.electronicsstore.entity.CartItem;
@@ -54,7 +54,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public OrderDTO createOrder(CreateOrderRequest createOrderRequest) {
+    public OrderDto createOrder(CreateOrderRequest createOrderRequest) {
         User user = userRepository.findById(createOrderRequest.getUserId()).orElseThrow(
                 () -> new ResourceNotFoundException("User not found in database!"));
 
@@ -97,7 +97,7 @@ public class OrderServiceImpl implements OrderService {
         cartRepository.save(cart);
         Order savedOrder = orderRepository.save(order);
 
-        return modelMapper.map(savedOrder, OrderDTO.class);
+        return modelMapper.map(savedOrder, OrderDto.class);
     }
 
     @Override
@@ -108,19 +108,19 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public List<OrderDTO> getOrdersOfUser(String userId) {
+    public List<OrderDto> getOrdersOfUser(String userId) {
         User user = userRepository.findById(userId).orElseThrow(
                 () -> new ResourceNotFoundException("User not found in database!"));
 
         List<Order> orders = orderRepository.findByUser(user);
-        List<OrderDTO> orderDTOs = orders.stream()
-                .map(order -> modelMapper.map(order, OrderDTO.class))
+        List<OrderDto> orderDtos = orders.stream()
+                .map(order -> modelMapper.map(order, OrderDto.class))
                 .collect(Collectors.toList());
-        return orderDTOs;
+        return orderDtos;
     }
 
     @Override
-    public PageableResponse<OrderDTO> getOrders(
+    public PageableResponse<OrderDto> getOrders(
             int pageNumber,
             int pageSize,
             String sortBy,
@@ -130,7 +130,7 @@ public class OrderServiceImpl implements OrderService {
                 : Sort.by(sortBy).ascending();
         Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
         Page<Order> ordersPage = orderRepository.findAll(pageable);
-        return PageableUtil.getPageableResponse(ordersPage, OrderDTO.class, modelMapper);
+        return PageableUtil.getPageableResponse(ordersPage, OrderDto.class, modelMapper);
     }
 
 }

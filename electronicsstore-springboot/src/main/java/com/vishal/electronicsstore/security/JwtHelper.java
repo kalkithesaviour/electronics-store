@@ -25,10 +25,6 @@ public class JwtHelper {
         this.secretKey = secretKey;
     }
 
-    public String getSecretKey() {
-        return secretKey;
-    }
-
     public String getUsernameFromToken(String token) {
         return getClaimFromToken(token, Claims::getSubject);
     }

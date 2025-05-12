@@ -10,8 +10,8 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.vishal.electronicsstore.dto.CartDTO;
-import com.vishal.electronicsstore.dto.CartItemDTO;
+import com.vishal.electronicsstore.dto.CartDto;
+import com.vishal.electronicsstore.dto.CartItemDto;
 import com.vishal.electronicsstore.entity.Cart;
 import com.vishal.electronicsstore.entity.CartItem;
 import com.vishal.electronicsstore.entity.Product;
@@ -51,9 +51,9 @@ public class CartServiceImpl implements CartService {
     }
 
     @Override
-    public CartDTO addCartItemToCart(String userId, CartItemDTO cartItemDTO) {
-        String productId = cartItemDTO.getProductId();
-        int quantity = cartItemDTO.getQuantityOfCartItem();
+    public CartDto addCartItemToCart(String userId, CartItemDto cartItemDto) {
+        String productId = cartItemDto.getProductId();
+        int quantity = cartItemDto.getQuantityOfCartItem();
 
         if (quantity <= 0) {
             throw new BadAPIRequestException("Requested quantity is not valid!");
@@ -100,7 +100,7 @@ public class CartServiceImpl implements CartService {
 
         Cart updatedCart = cartRepository.save(cart);
 
-        return modelMapper.map(updatedCart, CartDTO.class);
+        return modelMapper.map(updatedCart, CartDto.class);
     }
 
     @Override
@@ -123,14 +123,14 @@ public class CartServiceImpl implements CartService {
     }
 
     @Override
-    public CartDTO getCartByUserId(String userId) {
+    public CartDto getCartByUserId(String userId) {
         User user = userRepository.findById(userId).orElseThrow(
                 () -> new ResourceNotFoundException("User not found in database!"));
 
         Cart cart = cartRepository.findByUser(user).orElseThrow(
                 () -> new ResourceNotFoundException("Cart not found in database!"));
 
-        return modelMapper.map(cart, CartDTO.class);
+        return modelMapper.map(cart, CartDto.class);
     }
 
 }

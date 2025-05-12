@@ -24,10 +24,10 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.vishal.electronicsstore.dto.APIResponseMessage;
-import com.vishal.electronicsstore.dto.CategoryDTO;
+import com.vishal.electronicsstore.dto.CategoryDto;
 import com.vishal.electronicsstore.dto.ImageResponse;
 import com.vishal.electronicsstore.dto.PageableResponse;
-import com.vishal.electronicsstore.dto.ProductDTO;
+import com.vishal.electronicsstore.dto.ProductDto;
 import com.vishal.electronicsstore.service.CategoryService;
 import com.vishal.electronicsstore.service.FileService;
 import com.vishal.electronicsstore.service.ProductService;
@@ -55,17 +55,17 @@ public class CategoryController {
     }
 
     @PostMapping
-    public ResponseEntity<CategoryDTO> createCategory(@Valid @RequestBody CategoryDTO categoryDTO) {
-        CategoryDTO savedCategoryDTO = categoryService.create(categoryDTO);
-        return ResponseEntity.status(HttpStatus.CREATED).body(savedCategoryDTO);
+    public ResponseEntity<CategoryDto> createCategory(@Valid @RequestBody CategoryDto categoryDto) {
+        CategoryDto savedCategoryDto = categoryService.create(categoryDto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(savedCategoryDto);
     }
 
     @PutMapping("/{categoryId}")
-    public ResponseEntity<CategoryDTO> updateCategory(
-            @RequestBody CategoryDTO categoryDTO,
+    public ResponseEntity<CategoryDto> updateCategory(
+            @RequestBody CategoryDto categoryDto,
             @PathVariable String categoryId) {
-        CategoryDTO updatedCategoryDTO = categoryService.update(categoryDTO, categoryId);
-        return ResponseEntity.ok(updatedCategoryDTO);
+        CategoryDto updatedCategoryDto = categoryService.update(categoryDto, categoryId);
+        return ResponseEntity.ok(updatedCategoryDto);
     }
 
     @DeleteMapping("/{categoryId}")
@@ -80,7 +80,7 @@ public class CategoryController {
     }
 
     @GetMapping
-    public ResponseEntity<PageableResponse<CategoryDTO>> getAllCategories(
+    public ResponseEntity<PageableResponse<CategoryDto>> getAllCategories(
             @RequestParam(defaultValue = "0", required = false) int pageNumber,
             @RequestParam(defaultValue = "5", required = false) int pageSize,
             @RequestParam(defaultValue = "title", required = false) String sortBy,
@@ -89,13 +89,13 @@ public class CategoryController {
     }
 
     @GetMapping("/{categoryId}")
-    public ResponseEntity<CategoryDTO> getCategory(@PathVariable String categoryId) {
-        CategoryDTO categoryDTO = categoryService.get(categoryId);
-        return ResponseEntity.ok(categoryDTO);
+    public ResponseEntity<CategoryDto> getCategory(@PathVariable String categoryId) {
+        CategoryDto categoryDto = categoryService.get(categoryId);
+        return ResponseEntity.ok(categoryDto);
     }
 
     @GetMapping("/search/{keyword}")
-    public ResponseEntity<PageableResponse<CategoryDTO>> searchCategories(
+    public ResponseEntity<PageableResponse<CategoryDto>> searchCategories(
             @PathVariable String keyword,
             @RequestParam(defaultValue = "0", required = false) int pageNumber,
             @RequestParam(defaultValue = "5", required = false) int pageSize,
@@ -110,9 +110,9 @@ public class CategoryController {
             @RequestParam MultipartFile categoryImage) throws IOException {
         String imageName = fileService.uploadFile(categoryImage, imagePath);
 
-        CategoryDTO categoryDTO = categoryService.get(categoryId);
-        categoryDTO.setCategoryImage(imageName);
-        categoryService.update(categoryDTO, categoryId);
+        CategoryDto categoryDto = categoryService.get(categoryId);
+        categoryDto.setCategoryImage(imageName);
+        categoryService.update(categoryDto, categoryId);
 
         ImageResponse imageResponse = ImageResponse.builder()
                 .imageName(imageName)
@@ -127,37 +127,37 @@ public class CategoryController {
     public void serveCategoryImage(
             @PathVariable String categoryId,
             HttpServletResponse response) throws IOException {
-        CategoryDTO categoryDTO = categoryService.get(categoryId);
-        log.info("Category image name : {}", categoryDTO.getCategoryImage());
+        CategoryDto categoryDto = categoryService.get(categoryId);
+        log.info("Category image name : {}", categoryDto.getCategoryImage());
 
-        InputStream resource = fileService.getResource(imagePath, categoryDTO.getCategoryImage());
+        InputStream resource = fileService.getResource(imagePath, categoryDto.getCategoryImage());
 
         response.setContentType(MediaType.IMAGE_JPEG_VALUE);
         StreamUtils.copy(resource, response.getOutputStream());
     }
 
     @PostMapping("/{categoryId}/product")
-    public ResponseEntity<ProductDTO> createProductWithCategory(
+    public ResponseEntity<ProductDto> createProductWithCategory(
             @PathVariable String categoryId,
-            @RequestBody ProductDTO productDTO) {
+            @RequestBody ProductDto productDto) {
 
-        ProductDTO productWithCategory = productService.createProductWithCategory(productDTO, categoryId);
+        ProductDto productWithCategory = productService.createProductWithCategory(productDto, categoryId);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(productWithCategory);
     }
 
     @PutMapping("/{categoryId}/product/{productId}")
-    public ResponseEntity<ProductDTO> updateCategoryOfProduct(
+    public ResponseEntity<ProductDto> updateCategoryOfProduct(
             @PathVariable String categoryId,
             @PathVariable String productId) {
 
-        ProductDTO updatedProduct = productService.updateCategoryOfProduct(productId, categoryId);
+        ProductDto updatedProduct = productService.updateCategoryOfProduct(productId, categoryId);
 
         return ResponseEntity.ok(updatedProduct);
     }
 
     @GetMapping("/{categoryId}/product")
-    public ResponseEntity<PageableResponse<ProductDTO>> getAllProductsOfACategory(
+    public ResponseEntity<PageableResponse<ProductDto>> getAllProductsOfACategory(
             @PathVariable String categoryId,
             @RequestParam(defaultValue = "0", required = false) int pageNumber,
             @RequestParam(defaultValue = "5", required = false) int pageSize,

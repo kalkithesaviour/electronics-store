@@ -13,7 +13,7 @@ import lombok.ToString;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
-public class ProductDTO {
+public class ProductDto {
 
     private String productId;
 
@@ -35,6 +35,6 @@ public class ProductDTO {
 
     private String productImage;
 
-    private CategoryDTO category;
+    private CategoryDto category;
 
 }
