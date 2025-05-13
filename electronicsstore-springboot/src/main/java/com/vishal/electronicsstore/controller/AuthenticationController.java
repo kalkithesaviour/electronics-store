@@ -1,5 +1,7 @@
 package com.vishal.electronicsstore.controller;
 
+import java.io.IOException;
+import java.security.GeneralSecurityException;
 import java.util.List;
 
 import org.modelmapper.ModelMapper;
@@ -15,15 +17,23 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken.Payload;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
 import com.google.api.client.http.apache.v2.ApacheHttpTransport;
 import com.google.api.client.json.gson.GsonFactory;
 import com.vishal.electronicsstore.dto.GoogleLoginRequest;
 import com.vishal.electronicsstore.dto.JwtRequest;
 import com.vishal.electronicsstore.dto.JwtResponse;
+import com.vishal.electronicsstore.dto.RefreshTokenDto;
+import com.vishal.electronicsstore.dto.RefreshTokenRequest;
 import com.vishal.electronicsstore.dto.UserDto;
 import com.vishal.electronicsstore.entity.User;
+import com.vishal.electronicsstore.exception.BadAPIRequestException;
+import com.vishal.electronicsstore.exception.ResourceNotFoundException;
 import com.vishal.electronicsstore.security.JwtHelper;
+import com.vishal.electronicsstore.service.RefreshTokenService;
+import com.vishal.electronicsstore.service.UserService;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -36,35 +46,67 @@ public class AuthenticationController {
     private final ModelMapper modelMapper;
     private final JwtHelper jwtHelper;
     private final String clientId;
+    private final String googleProviderDefaultPassword;
+    private final UserService userService;
+    private final RefreshTokenService refreshTokenService;
 
     @Autowired
     public AuthenticationController(
             AuthenticationManager authenticationManager,
             ModelMapper modelMapper,
             JwtHelper jwtHelper,
-            @Value("${client.id}") String clientId) {
+            @Value("${google.client.id}") String clientId,
+            @Value("${google.default-password}") String googleProviderDefaultPassword,
+            UserService userService,
+            RefreshTokenService refreshTokenService) {
         this.authenticationManager = authenticationManager;
         this.modelMapper = modelMapper;
         this.jwtHelper = jwtHelper;
         this.clientId = clientId;
+        this.googleProviderDefaultPassword = googleProviderDefaultPassword;
+        this.userService = userService;
+        this.refreshTokenService = refreshTokenService;
     }
 
-    @PostMapping("/generate-token")
+    @PostMapping("/regenerate-jwt-token")
+    public ResponseEntity<JwtResponse> regenerateJwtToken(@RequestBody RefreshTokenRequest request) {
+        RefreshTokenDto refreshTokenDto = refreshTokenService.findByToken(request.getRefreshToken());
+        refreshTokenService.verifyRefreshToken(refreshTokenDto);
+        UserDto userDto = refreshTokenService.getUser(refreshTokenDto);
+        User user = modelMapper.map(userDto, User.class);
+        String jwtToken = jwtHelper.generateToken(user);
+        JwtResponse jwtResponse = JwtResponse.builder()
+                .jwtToken(jwtToken)
+                .user(userDto)
+                .refreshToken(refreshTokenDto)
+                .build();
+        return ResponseEntity.ok(jwtResponse);
+    }
+
+    @PostMapping("/login")
     public ResponseEntity<JwtResponse> login(@RequestBody JwtRequest request) {
         String username = request.getUsername();
         String password = request.getPassword();
         log.info("Username: {}, Password: {}", username, password);
+        JwtResponse jwtResponse = this.doAuthenticate(username, password);
+        return ResponseEntity.ok(jwtResponse);
+    }
 
+    private JwtResponse doAuthenticate(String username, String password) {
         try {
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(username, password));
             User user = (User) authentication.getPrincipal();
-            String token = jwtHelper.generateToken(user);
+            String jwtToken = jwtHelper.generateToken(user);
+
+            RefreshTokenDto refreshTokenDto = refreshTokenService.createRefreshToken(username);
+
             JwtResponse jwtResponse = JwtResponse.builder()
-                    .token(token)
+                    .jwtToken(jwtToken)
                     .user(modelMapper.map(user, UserDto.class))
+                    .refreshToken(refreshTokenDto)
                     .build();
-            return ResponseEntity.ok(jwtResponse);
+            return jwtResponse;
         } catch (BadCredentialsException e) {
             throw new BadCredentialsException("Invalid Credentials!");
         }
@@ -72,16 +114,49 @@ public class AuthenticationController {
 
     @PostMapping("/login-with-google")
     public ResponseEntity<JwtResponse> handleGoogleLogin(
-            @RequestBody GoogleLoginRequest request) {
-        log.info("ID token: " + request.getIdToken());
+            @RequestBody GoogleLoginRequest request) throws GeneralSecurityException, IOException {
+        String idToken = request.getIdToken();
+        log.info("ID token: " + idToken);
 
         GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(
-                new ApacheHttpTransport(),
-                new GsonFactory())
+                new ApacheHttpTransport(), new GsonFactory())
                 .setAudience(List.of(clientId))
                 .build();
 
-        return null;
+        GoogleIdToken googleIdToken = verifier.verify(idToken);
+        if (googleIdToken != null) {
+            Payload payload = googleIdToken.getPayload();
+            String name = (String) payload.get("name");
+            String email = payload.getEmail();
+            String pictureUrl = (String) payload.get("picture");
+
+            log.info("Full name: " + name);
+            log.info("Username: " + email);
+            log.info("Picture: " + pictureUrl);
+
+            UserDto userDto = null;
+            try {
+                userDto = userService.getUserByEmail(email);
+                log.info("Google user exists in DB");
+            } catch (ResourceNotFoundException e) {
+                log.info("Creating & saving new Google user in DB");
+                userDto = UserDto.builder()
+                        .fullName(name)
+                        .email(email)
+                        .userImageName(pictureUrl)
+                        .password(googleProviderDefaultPassword)
+                        .build();
+                userDto = userService.createUser(userDto);
+            }
+
+            log.info("Now authenticating Google user...");
+            JwtResponse jwtResponse = this.doAuthenticate(
+                    userDto.getEmail(), googleProviderDefaultPassword);
+            return ResponseEntity.ok(jwtResponse);
+        } else {
+            log.error("Token is invalid!");
+            throw new BadAPIRequestException("Invalid Google User!");
+        }
     }
 
 }

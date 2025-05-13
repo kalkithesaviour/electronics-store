@@ -1,15 +1,13 @@
 package com.vishal.electronicsstore.entity;
 
+import java.time.Instant;
+
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-
-import com.fasterxml.jackson.annotation.JsonBackReference;
-
+import jakarta.persistence.OneToOne;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -22,23 +20,18 @@ import lombok.Setter;
 @AllArgsConstructor
 @Builder
 @Entity
-public class CartItem {
+public class RefreshToken {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer cartItemId;
+    private Integer id;
 
-    @ManyToOne
-    @JoinColumn(name = "product_id")
-    private Product product;
+    private String token;
 
-    private int quantityOfCartItem;
+    private Instant expiryDate;
 
-    private int priceOfCartItem;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "cart_id")
-    @JsonBackReference
-    private Cart cart;
+    @OneToOne
+    @JoinColumn(name = "user_id")
+    private User user;
 
 }

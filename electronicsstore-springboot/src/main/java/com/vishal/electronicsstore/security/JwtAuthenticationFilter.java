@@ -40,7 +40,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected boolean shouldNotFilter(
             @NonNull HttpServletRequest request) throws ServletException {
         String path = request.getServletPath();
-        return path.equals("/auth/generate-token");
+        return path.equals("/auth/login")
+                || path.equals("/auth/login-with-google")
+                || path.equals("/auth/regenerate-jwt-token");
     }
 
     @Override
@@ -53,7 +55,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         String username = null;
         String token = null;
-        if (requestHeader != null && requestHeader.startsWith("Bearer")) {
+        if (requestHeader != null && requestHeader.startsWith("Bearer ")) {
             token = requestHeader.substring(7);
             try {
                 username = jwtHelper.getUsernameFromToken(token);
@@ -68,7 +70,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 log.error("Unexpected error while parsing the token! ", e);
             }
         } else {
-            log.error("Invalid Authorization Header!");
+            log.warn("Invalid JWT Header!");
         }
 
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {

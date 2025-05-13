@@ -48,7 +48,9 @@ public class SecurityConfig {
                 .requestMatchers("/products/**").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.GET, "/categories/**").permitAll()
                 .requestMatchers("/categories/**").hasRole("ADMIN")
-                .requestMatchers(HttpMethod.POST, "/auth/generate-token", "/auth/login-with-google").permitAll()
+                .requestMatchers(HttpMethod.POST, "/auth/login",
+                        "/auth/login-with-google", "/auth/regenerate-jwt-token")
+                .permitAll()
                 .requestMatchers("/auth/**").authenticated()
                 .anyRequest().permitAll());
 
