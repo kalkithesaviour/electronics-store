@@ -1,17 +1,22 @@
 package com.vishal.electronicsstore.security;
 
 import java.io.IOException;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import com.vishal.electronicsstore.service.CustomUserDetailsService;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.MalformedJwtException;
@@ -26,14 +31,14 @@ import lombok.extern.slf4j.Slf4j;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtHelper jwtHelper;
-    private final CustomUserDetailsService customUserDetailsService;
+    private final ObjectMapper objectMapper;
 
     @Autowired
     public JwtAuthenticationFilter(
             JwtHelper jwtHelper,
-            CustomUserDetailsService customUserDetailsService) {
+            ObjectMapper objectMapper) {
         this.jwtHelper = jwtHelper;
-        this.customUserDetailsService = customUserDetailsService;
+        this.objectMapper = objectMapper;
     }
 
     @Override
@@ -73,15 +78,22 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             log.warn("Invalid JWT Header!");
         }
 
-        if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            UserDetails userDetails = customUserDetailsService.loadUserByUsername(username);
+        if (username != null && SecurityContextHolder.getContext().getAuthentication() == null
+                && !jwtHelper.isTokenExpired(token)) {
+            List<GrantedAuthority> authorities = jwtHelper.getClaimFromToken(token, claims -> {
+                Object rawRoles = claims.get("roles");
+                List<String> rolesList = objectMapper.convertValue(rawRoles, new TypeReference<List<String>>() {
+                });
+                return rolesList.stream()
+                        .map(SimpleGrantedAuthority::new)
+                        .collect(Collectors.toList());
+            });
 
-            if (username.equals(userDetails.getUsername()) && !jwtHelper.isTokenExpired(token)) {
-                UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
-                        userDetails, null, userDetails.getAuthorities());
-                authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                SecurityContextHolder.getContext().setAuthentication(authentication);
-            }
+            UserDetails userDetails = new org.springframework.security.core.userdetails.User(username, "", authorities);
+            UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
+                    userDetails, null, authorities);
+            authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+            SecurityContextHolder.getContext().setAuthentication(authentication);
         }
 
         filterChain.doFilter(request, response);
