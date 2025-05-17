@@ -2,6 +2,7 @@ package com.vishal.electronicsstore.dto;
 
 import org.springframework.http.HttpStatus;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -13,7 +14,8 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class APIResponseMessage {
+@Schema
+public class ApiResponseMessage {
 
     private String message;
 

@@ -6,31 +6,42 @@ import java.util.Map;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.validation.FieldError;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import com.vishal.electronicsstore.dto.APIResponseMessage;
+import com.vishal.electronicsstore.dto.ApiResponseMessage;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
+    @ExceptionHandler(BadCredentialsException.class)
+    public ResponseEntity<ApiResponseMessage> handleBadCredentials(BadCredentialsException e) {
+        ApiResponseMessage response = ApiResponseMessage.builder()
+                .message(e.getMessage())
+                .status(HttpStatus.UNAUTHORIZED)
+                .success(false)
+                .build();
+        return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
+    }
+
     @ExceptionHandler(ResourceNotFoundException.class)
-    public ResponseEntity<APIResponseMessage> resourceNotFoundExceptionHandler(ResourceNotFoundException e) {
-        APIResponseMessage response = APIResponseMessage.builder()
+    public ResponseEntity<ApiResponseMessage> resourceNotFoundExceptionHandler(ResourceNotFoundException e) {
+        ApiResponseMessage response = ApiResponseMessage.builder()
                 .message(e.getMessage())
                 .status(HttpStatus.NOT_FOUND)
-                .success(true)
+                .success(false)
                 .build();
 
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
 
     @ExceptionHandler(BadAPIRequestException.class)
-    public ResponseEntity<APIResponseMessage> badAPIRequestExceptionHandler(BadAPIRequestException e) {
-        APIResponseMessage response = APIResponseMessage.builder()
+    public ResponseEntity<ApiResponseMessage> badAPIRequestExceptionHandler(BadAPIRequestException e) {
+        ApiResponseMessage response = ApiResponseMessage.builder()
                 .message(e.getMessage())
                 .status(HttpStatus.BAD_REQUEST)
                 .success(false)

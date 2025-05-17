@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.vishal.electronicsstore.dto.APIResponseMessage;
+import com.vishal.electronicsstore.dto.ApiResponseMessage;
 import com.vishal.electronicsstore.dto.CreateOrderRequest;
 import com.vishal.electronicsstore.dto.OrderDto;
 import com.vishal.electronicsstore.dto.PageableResponse;
@@ -64,9 +64,9 @@ public class OrderController {
 
     @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{orderId}")
-    public ResponseEntity<APIResponseMessage> removeOrder(@PathVariable String orderId) {
+    public ResponseEntity<ApiResponseMessage> removeOrder(@PathVariable String orderId) {
         orderService.removeOrder(orderId);
-        APIResponseMessage response = APIResponseMessage.builder()
+        ApiResponseMessage response = ApiResponseMessage.builder()
                 .message("Order is removed.")
                 .success(true)
                 .status(HttpStatus.OK)

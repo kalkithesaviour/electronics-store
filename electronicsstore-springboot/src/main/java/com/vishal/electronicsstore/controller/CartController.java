@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.vishal.electronicsstore.dto.APIResponseMessage;
+import com.vishal.electronicsstore.dto.ApiResponseMessage;
 import com.vishal.electronicsstore.dto.CartDto;
 import com.vishal.electronicsstore.dto.CartItemDto;
 import com.vishal.electronicsstore.service.CartService;
@@ -49,9 +49,9 @@ public class CartController {
 
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @DeleteMapping("/cart-item/{cartItemId}")
-    public ResponseEntity<APIResponseMessage> removeItemFromCart(@PathVariable int cartItemId) {
+    public ResponseEntity<ApiResponseMessage> removeItemFromCart(@PathVariable int cartItemId) {
         cartService.removeCartItemFromCart(cartItemId);
-        APIResponseMessage response = APIResponseMessage.builder()
+        ApiResponseMessage response = ApiResponseMessage.builder()
                 .message("Cart item is removed.")
                 .success(true)
                 .status(HttpStatus.OK)
@@ -61,9 +61,9 @@ public class CartController {
 
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @DeleteMapping("/user/{userId}")
-    public ResponseEntity<APIResponseMessage> clearCartByUserId(@PathVariable String userId) {
+    public ResponseEntity<ApiResponseMessage> clearCartByUserId(@PathVariable String userId) {
         cartService.clearCart(userId);
-        APIResponseMessage response = APIResponseMessage.builder()
+        ApiResponseMessage response = ApiResponseMessage.builder()
                 .message("Cart is now empty.")
                 .success(true)
                 .status(HttpStatus.OK)

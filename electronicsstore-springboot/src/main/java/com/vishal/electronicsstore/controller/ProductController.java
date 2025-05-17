@@ -23,7 +23,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.vishal.electronicsstore.dto.APIResponseMessage;
+import com.vishal.electronicsstore.dto.ApiResponseMessage;
 import com.vishal.electronicsstore.dto.ProductDto;
 import com.vishal.electronicsstore.dto.ImageResponse;
 import com.vishal.electronicsstore.dto.PageableResponse;
@@ -64,9 +64,9 @@ public class ProductController {
     }
 
     @DeleteMapping("/{productId}")
-    public ResponseEntity<APIResponseMessage> deleteProduct(@PathVariable String productId) {
+    public ResponseEntity<ApiResponseMessage> deleteProduct(@PathVariable String productId) {
         productService.delete(productId, imagePath);
-        APIResponseMessage responseMessage = APIResponseMessage.builder()
+        ApiResponseMessage responseMessage = ApiResponseMessage.builder()
                 .message("Product deleted successfully")
                 .status(HttpStatus.OK)
                 .success(true)

@@ -35,11 +35,17 @@ import com.vishal.electronicsstore.security.JwtHelper;
 import com.vishal.electronicsstore.service.RefreshTokenService;
 import com.vishal.electronicsstore.service.UserService;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 
 @RestController
 @RequestMapping("/auth")
 @Slf4j
+@Tag(name = "Auth APIs", description = "Login, Login with Google, and Regenerate JWT")
 public class AuthenticationController {
 
     private final AuthenticationManager authenticationManager;
@@ -69,6 +75,7 @@ public class AuthenticationController {
     }
 
     @PostMapping("/regenerate-jwt-token")
+    @Operation(summary = "Regenerate JWT using Refresh token")
     public ResponseEntity<JwtResponse> regenerateJwtToken(@RequestBody RefreshTokenRequest request) {
         RefreshTokenDto refreshTokenDto = refreshTokenService.findByToken(request.getRefreshToken());
         refreshTokenService.verifyRefreshToken(refreshTokenDto);
@@ -84,6 +91,12 @@ public class AuthenticationController {
     }
 
     @PostMapping("/login")
+    @Operation(summary = "Login with username & password")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successful login", content = @Content(mediaType = "application/json")),
+            @ApiResponse(responseCode = "401", description = "Unauthorized - Invalid credentials", content = @Content(mediaType = "application/json")),
+            @ApiResponse(responseCode = "404", description = "User not found or endpoint does not exist", content = @Content(mediaType = "application/json"))
+    })
     public ResponseEntity<JwtResponse> login(@RequestBody JwtRequest request) {
         String username = request.getUsername();
         String password = request.getPassword();
@@ -113,6 +126,7 @@ public class AuthenticationController {
     }
 
     @PostMapping("/login-with-google")
+    @Operation(summary = "Login with Google")
     public ResponseEntity<JwtResponse> handleGoogleLogin(
             @RequestBody GoogleLoginRequest request) throws GeneralSecurityException, IOException {
         String idToken = request.getIdToken();

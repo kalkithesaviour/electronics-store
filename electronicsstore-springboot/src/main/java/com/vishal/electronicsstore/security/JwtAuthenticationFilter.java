@@ -45,7 +45,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected boolean shouldNotFilter(
             @NonNull HttpServletRequest request) throws ServletException {
         String path = request.getServletPath();
-        return path.equals("/auth/login")
+        return path.startsWith("/swagger-ui")
+                || path.startsWith("/v3/api-docs")
+                || path.equals("/auth/login")
                 || path.equals("/auth/login-with-google")
                 || path.equals("/auth/regenerate-jwt-token");
     }

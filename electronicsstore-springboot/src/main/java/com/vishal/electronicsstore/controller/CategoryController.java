@@ -23,7 +23,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.vishal.electronicsstore.dto.APIResponseMessage;
+import com.vishal.electronicsstore.dto.ApiResponseMessage;
 import com.vishal.electronicsstore.dto.CategoryDto;
 import com.vishal.electronicsstore.dto.ImageResponse;
 import com.vishal.electronicsstore.dto.PageableResponse;
@@ -32,6 +32,7 @@ import com.vishal.electronicsstore.service.CategoryService;
 import com.vishal.electronicsstore.service.FileService;
 import com.vishal.electronicsstore.service.ProductService;
 
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.extern.slf4j.Slf4j;
 
 @RestController
@@ -69,9 +70,9 @@ public class CategoryController {
     }
 
     @DeleteMapping("/{categoryId}")
-    public ResponseEntity<APIResponseMessage> deleteCategory(@PathVariable String categoryId) {
+    public ResponseEntity<ApiResponseMessage> deleteCategory(@PathVariable String categoryId) {
         categoryService.delete(categoryId, imagePath);
-        APIResponseMessage responseMessage = APIResponseMessage.builder()
+        ApiResponseMessage responseMessage = ApiResponseMessage.builder()
                 .message("Category deleted successfully")
                 .status(HttpStatus.OK)
                 .success(true)
@@ -104,7 +105,8 @@ public class CategoryController {
         return ResponseEntity.ok(categoryService.searchCategories(keyword, pageNumber, pageSize, sortBy, sortDirec));
     }
 
-    @PostMapping("/image/{categoryId}")
+    @PostMapping(value = "/image/{categoryId}", consumes = "multipart/form-data")
+    @Operation(summary = "Upload category image")
     public ResponseEntity<ImageResponse> uploadCategoryImage(
             @PathVariable String categoryId,
             @RequestParam MultipartFile categoryImage) throws IOException {
