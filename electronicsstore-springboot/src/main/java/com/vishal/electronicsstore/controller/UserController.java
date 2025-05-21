@@ -78,7 +78,7 @@ public class UserController {
     public ResponseEntity<PageableResponse<UserDto>> getAllUsers(
             @RequestParam(defaultValue = "0", required = false) int pageNumber,
             @RequestParam(defaultValue = "5", required = false) int pageSize,
-            @RequestParam(defaultValue = "name", required = false) String sortBy,
+            @RequestParam(defaultValue = "fullName", required = false) String sortBy,
             @RequestParam(defaultValue = "asc", required = false) String sortDirec) {
         return ResponseEntity.ok(userService.getAllUsers(pageNumber, pageSize, sortBy, sortDirec));
     }
@@ -98,7 +98,7 @@ public class UserController {
             @PathVariable String keyword,
             @RequestParam(defaultValue = "0", required = false) int pageNumber,
             @RequestParam(defaultValue = "5", required = false) int pageSize,
-            @RequestParam(defaultValue = "name", required = false) String sortBy,
+            @RequestParam(defaultValue = "fullName", required = false) String sortBy,
             @RequestParam(defaultValue = "asc", required = false) String sortDirec) {
         return ResponseEntity.ok(userService.searchUsers(keyword, pageNumber, pageSize, sortBy, sortDirec));
     }

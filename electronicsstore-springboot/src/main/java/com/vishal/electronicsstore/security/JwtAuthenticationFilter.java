@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
@@ -30,20 +31,26 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
+    private final boolean jwtFilterEnabled;
     private final JwtHelper jwtHelper;
     private final ObjectMapper objectMapper;
 
     @Autowired
     public JwtAuthenticationFilter(
+            @Value("${jwt.filter.enabled}") boolean jwtFilterEnabled,
             JwtHelper jwtHelper,
             ObjectMapper objectMapper) {
+        this.jwtFilterEnabled = jwtFilterEnabled;
         this.jwtHelper = jwtHelper;
         this.objectMapper = objectMapper;
     }
 
     @Override
-    protected boolean shouldNotFilter(
-            @NonNull HttpServletRequest request) throws ServletException {
+    protected boolean shouldNotFilter(@NonNull HttpServletRequest request) throws ServletException {
+        if (!jwtFilterEnabled) {
+            return true;
+        }
+
         String path = request.getServletPath();
         return path.startsWith("/swagger-ui")
                 || path.startsWith("/v3/api-docs")

@@ -29,6 +29,7 @@ class ElectronicsStoreApplicationTests {
 
 	@Test
 	void contextLoads() {
+		log.info("Testing our application");
 	}
 
 	@BeforeAll
