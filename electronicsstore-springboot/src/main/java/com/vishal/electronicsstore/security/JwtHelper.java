@@ -6,6 +6,9 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import javax.crypto.SecretKey;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -13,7 +16,7 @@ import org.springframework.stereotype.Component;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.security.Keys;
 
 @Component
 public class JwtHelper {
@@ -23,8 +26,13 @@ public class JwtHelper {
 
     private final String secretKey;
 
+    @Autowired
     public JwtHelper(@Value("${jwt.secret}") String secretKey) {
         this.secretKey = secretKey;
+    }
+
+    private SecretKey getSigningKey() {
+        return Keys.hmacShaKeyFor(secretKey.getBytes());
     }
 
     public String getUsernameFromToken(String token) {
@@ -37,7 +45,7 @@ public class JwtHelper {
     }
 
     private Claims getAllClaimsFromToken(String token) {
-        return Jwts.parser().setSigningKey(secretKey).build().parseClaimsJws(token).getPayload();
+        return Jwts.parser().verifyWith(getSigningKey()).build().parseSignedClaims(token).getPayload();
     }
 
     public Boolean isTokenExpired(String token) {
@@ -59,11 +67,11 @@ public class JwtHelper {
 
     private String doGenerateToken(Map<String, Object> claims, String subject) {
         return Jwts.builder()
-                .setClaims(claims)
-                .setSubject(subject)
-                .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + JWT_TOKEN_VALIDITY))
-                .signWith(SignatureAlgorithm.HS512, secretKey).compact();
+                .claims(claims)
+                .subject(subject)
+                .issuedAt(new Date(System.currentTimeMillis()))
+                .expiration(new Date(System.currentTimeMillis() + JWT_TOKEN_VALIDITY))
+                .signWith(getSigningKey()).compact();
     }
 
 }
