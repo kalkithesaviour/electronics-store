@@ -1,5 +1,5 @@
 # Electronics Store Application
-Full-stack application built with Java, Spring Boot, and MySQL, designed to efficiently manage products, users, and orders for an e-commerce electronics store through a comprehensive set of RESTful APIs exposed via Swagger UI.
+Back-end application built with Java, Spring Boot, and MySQL, designed to efficiently manage products, users, and orders for an e-commerce electronics store through a comprehensive set of RESTful APIs exposed via Swagger UI.
 
 The application supports essential e-commerce functionalities including user registration, login, product listing, shopping cart management, and order placement. Admin users are empowered with additional capabilities such as product management and order tracking, all secured via Spring Security and JWT for robust authentication and authorization.
 
@@ -9,7 +9,7 @@ To ensure smooth operation and traceability, the application implements centrali
 
 Comprehensive unit testing is performed using JUnit and Mockito to ensure code reliability and correctness. Swagger integration provides an interactive API documentation interface, simplifying development and testing.
 
-#### Docker Hub Image: https://hub.docker.com/repository/docker/vizzzard/electronicsstore-1.0/tags
+#### Spring Boot Docker image: https://hub.docker.com/repository/docker/vizzzard/electronicsstore-1.0/tags
 
 ### Tech Stack
 
