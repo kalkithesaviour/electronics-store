@@ -11,7 +11,6 @@ Comprehensive unit testing is performed using JUnit and Mockito to ensure code r
 
 #### Spring Boot Docker image
 ```
-
 docker pull vizzzard/electronicsstore-springboot:1.0
 ```
 
