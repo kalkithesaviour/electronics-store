@@ -4,6 +4,7 @@ import java.util.Date;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -39,6 +40,7 @@ public class ProductDto {
     private String productImage;
 
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    @Schema(hidden = true)
     private CategoryDto category;
 
 }
