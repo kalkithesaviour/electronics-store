@@ -2,6 +2,8 @@ package com.vishal.electronicsstore.dto;
 
 import java.util.Date;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -15,6 +17,7 @@ import lombok.ToString;
 @ToString
 public class ProductDto {
 
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private String productId;
 
     private String title;
@@ -35,6 +38,7 @@ public class ProductDto {
 
     private String productImage;
 
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private CategoryDto category;
 
 }

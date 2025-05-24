@@ -1,5 +1,7 @@
 package com.vishal.electronicsstore.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
@@ -14,6 +16,7 @@ import lombok.Setter;
 @AllArgsConstructor
 public class CategoryDto {
 
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private String categoryId;
 
     @NotBlank(message = "Title required!")
