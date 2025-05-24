@@ -5,7 +5,9 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URISyntaxException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.UUID;
 
@@ -22,9 +24,9 @@ import lombok.extern.slf4j.Slf4j;
 public class FileServiceImpl implements FileService {
 
     @Override
-    public String uploadFile(MultipartFile file, String path) throws IOException {
+    public String uploadFile(MultipartFile file, String imagePath) throws IOException {
         String originalFileName = file.getOriginalFilename();
-        log.info("Filename : {}", originalFileName);
+        log.info("Original filename : {}", originalFileName);
 
         if (originalFileName == null || originalFileName.isEmpty()) {
             throw new IllegalArgumentException("Filename is null or empty!");
@@ -36,12 +38,31 @@ public class FileServiceImpl implements FileService {
                 || extension.equalsIgnoreCase(".jpeg")) {
             String fileName = UUID.randomUUID().toString();
             String fileNameWithExtension = fileName + extension;
-            String fullPath = Paths.get(path, fileNameWithExtension).toString();
-            File folder = new File(path);
-            if (!folder.exists()) {
-                folder.mkdirs();
+            log.info("New filename : {}", fileNameWithExtension);
+
+            // Resolve the absolute project root (from class location, not working dir)
+            Path projectRoot;
+            try {
+                Path codeSourcePath = Paths.get(
+                        UserServiceImpl.class.getProtectionDomain().getCodeSource().getLocation().toURI());
+                projectRoot = codeSourcePath.getParent().getParent(); // classes -> target -> project root
+            } catch (URISyntaxException e) {
+                throw new RuntimeException("Failed to resolve project root path", e);
             }
-            Files.copy(file.getInputStream(), Paths.get(fullPath));
+
+            // Build image path
+            Path imageFilePath = projectRoot.resolve(Paths.get(imagePath, fileNameWithExtension));
+
+            // Attempt to write file to the stream
+            try {
+                File folder = imageFilePath.getParent().toFile();
+                if (!folder.exists()) {
+                    folder.mkdirs();
+                }
+                Files.copy(file.getInputStream(), imageFilePath);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
             return fileNameWithExtension;
         } else {
             throw new BadAPIRequestException("File with " + extension + " extension not allowed!");

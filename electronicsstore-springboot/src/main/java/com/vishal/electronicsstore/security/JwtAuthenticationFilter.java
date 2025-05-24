@@ -58,7 +58,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 || path.startsWith("/v3/api-docs")
                 || (path.equals("/auth/login") || path.equals("/auth/login-with-google")
                         || path.equals("/auth/regenerate-jwt-token"))
-                || (path.equals("/users") && method.equals("POST"))
+                || (path.startsWith("/users") && method.equals("POST"))
                 || (path.startsWith("/users") && method.equals("GET"))
                 || (path.startsWith("/products") && method.equals("GET"))
                 || (path.startsWith("/categories") && method.equals("GET"))
