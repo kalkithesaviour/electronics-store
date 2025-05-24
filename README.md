@@ -9,7 +9,7 @@ To ensure smooth operation and traceability, the application implements centrali
 
 Comprehensive unit testing is performed using JUnit and Mockito to ensure code reliability and correctness. Swagger integration provides an interactive API documentation interface, simplifying development and testing.
 
-#### Spring Boot Docker image: https://hub.docker.com/repository/docker/vizzzard/electronicsstore-1.0/tags
+#### Spring Boot Docker image: docker pull vizzzard/electronicsstore-springboot:1.0
 
 ### Tech Stack
 

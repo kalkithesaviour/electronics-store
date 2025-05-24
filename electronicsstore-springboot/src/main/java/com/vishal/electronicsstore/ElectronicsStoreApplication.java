@@ -45,14 +45,32 @@ public class ElectronicsStoreApplication {
 				roleRepository.save(roleUser);
 			}
 
-			User user = userRepository.findByEmail("vishal@gmail.com").orElse(null);
-			if (user == null) {
-				user = User.builder()
-						.fullName("vishal")
+			User admin = userRepository.findByEmail("vishal@gmail.com").orElse(null);
+			if (admin == null) {
+				admin = User.builder()
+						.fullName("Vishal Singh Adhikari")
 						.email("vishal@gmail.com")
 						.password(passwordEncoder.encode("vishal"))
 						.roles(List.of(roleAdmin))
 						.userId(UUID.randomUUID().toString())
+						.gender("Male")
+						.about("This is Vishal")
+						.userImageName("vishal.png")
+						.build();
+				userRepository.save(admin);
+			}
+
+			User user = userRepository.findByEmail("vedanti@gmail.com").orElse(null);
+			if (user == null) {
+				user = User.builder()
+						.fullName("Vedanti Gori")
+						.email("vedanti@gmail.com")
+						.password(passwordEncoder.encode("vedanti"))
+						.roles(List.of(roleUser))
+						.userId(UUID.randomUUID().toString())
+						.gender("Female")
+						.about("This is Vedanti")
+						.userImageName("vedanti.png")
 						.build();
 				userRepository.save(user);
 			}

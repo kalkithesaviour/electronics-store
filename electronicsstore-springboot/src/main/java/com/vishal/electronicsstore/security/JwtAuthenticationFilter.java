@@ -52,11 +52,17 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         String path = request.getServletPath();
+        String method = request.getMethod();
+
         return path.startsWith("/swagger-ui")
                 || path.startsWith("/v3/api-docs")
-                || path.equals("/auth/login")
-                || path.equals("/auth/login-with-google")
-                || path.equals("/auth/regenerate-jwt-token");
+                || (path.equals("/auth/login") || path.equals("/auth/login-with-google")
+                        || path.equals("/auth/regenerate-jwt-token"))
+                || (path.equals("/users") && method.equals("POST"))
+                || (path.startsWith("/users") && method.equals("GET"))
+                || (path.startsWith("/products") && method.equals("GET"))
+                || (path.startsWith("/categories") && method.equals("GET"))
+                || path.equals("") || path.equals("/");
     }
 
     @Override
@@ -84,7 +90,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 log.error("Unexpected error while parsing the token! ", e);
             }
         } else {
-            log.warn("Invalid JWT Header!");
+            log.warn("Authenticate yourself and try again.");
         }
 
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null

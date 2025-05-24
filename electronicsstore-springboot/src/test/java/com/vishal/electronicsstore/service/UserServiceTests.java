@@ -22,6 +22,7 @@ import com.vishal.electronicsstore.dto.PageableResponse;
 import com.vishal.electronicsstore.dto.UserDto;
 import com.vishal.electronicsstore.entity.Role;
 import com.vishal.electronicsstore.entity.User;
+import com.vishal.electronicsstore.repository.RefreshTokenRepository;
 import com.vishal.electronicsstore.repository.RoleRepository;
 import com.vishal.electronicsstore.repository.UserRepository;
 
@@ -32,14 +33,20 @@ import lombok.extern.slf4j.Slf4j;
 @SpringBootTest
 public class UserServiceTests {
 
-    private final UserService userService;
-    private final ModelMapper modelMapper;
+    @Value("${user.image.path}")
+    private String imagePath;
 
     @MockBean
     private UserRepository userRepository;
 
     @MockBean
     private RoleRepository roleRepository;
+
+    @MockBean
+    private RefreshTokenRepository refreshTokenRepository;
+
+    private final UserService userService;
+    private final ModelMapper modelMapper;
 
     @Autowired
     public UserServiceTests(UserService userService, ModelMapper modelMapper) {
@@ -102,13 +109,12 @@ public class UserServiceTests {
 
         UserDto updatedUser = userService.updateUser(userDto, "userIdTest");
         Assertions.assertNotNull(updatedUser);
-        Assertions.assertEquals(userDto.getFullName(), updatedUser.getFullName(), "Full name not matched - Updation of user failed!");
+        Assertions.assertEquals(userDto.getFullName(), updatedUser.getFullName(),
+                "Full name not matched - Updation of user failed!");
         log.info(updatedUser.getFullName());
     }
 
-    @Value("${user.image.path}")
-    private String imagePath;
-
+    // requires vedanti.png file to be available under images/users
     @Test
     public void deleteUserTest() {
         String userId = "userIdTest";
@@ -155,7 +161,8 @@ public class UserServiceTests {
 
         UserDto userDto = userService.getUserById(userId);
         Assertions.assertNotNull(userDto);
-        Assertions.assertEquals(user.getFullName(), userDto.getFullName(), "Full name not matched - retrieval of user by id failed!");
+        Assertions.assertEquals(user.getFullName(), userDto.getFullName(),
+                "Full name not matched - retrieval of user by id failed!");
     }
 
     @Test
@@ -165,7 +172,8 @@ public class UserServiceTests {
 
         UserDto userDto = userService.getUserByEmail(email);
         Assertions.assertNotNull(userDto);
-        Assertions.assertEquals(user.getFullName(), userDto.getFullName(), "Full name not matched - retrieval of user by email failed!");
+        Assertions.assertEquals(user.getFullName(), userDto.getFullName(),
+                "Full name not matched - retrieval of user by email failed!");
     }
 
     @Test
@@ -184,7 +192,8 @@ public class UserServiceTests {
         List<User> userList = Arrays.asList(user, user1);
         Page<User> page = new PageImpl<>(userList);
 
-        Mockito.when(userRepository.findByFullNameContaining(Mockito.eq(keyword), Mockito.<Pageable>any())).thenReturn(page);
+        Mockito.when(userRepository.findByFullNameContaining(Mockito.eq(keyword), Mockito.<Pageable>any()))
+                .thenReturn(page);
 
         PageableResponse<UserDto> searchedUsers = userService.searchUsers(keyword, 1, 5, "fullName", "asc");
 

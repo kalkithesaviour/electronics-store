@@ -6,6 +6,7 @@ import jakarta.validation.constraints.Size;
 
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.vishal.electronicsstore.validator.ImageName;
 
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -23,6 +24,7 @@ import lombok.Setter;
 @Schema
 public class UserDto {
 
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private String userId;
 
     @Size(min = 3, max = 25, message = "Invalid full name!")
@@ -41,6 +43,7 @@ public class UserDto {
     @NotBlank(message = "Write something about yourself!")
     private String about;
 
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private List<RoleDto> roles;
 
     @ImageName

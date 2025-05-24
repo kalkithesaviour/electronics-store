@@ -18,6 +18,16 @@ import com.vishal.electronicsstore.dto.ApiResponseMessage;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
+    @ExceptionHandler(UserAlreadyExistsException.class)
+    public ResponseEntity<ApiResponseMessage> handleUserAlreadyExists(UserAlreadyExistsException e) {
+        ApiResponseMessage response = ApiResponseMessage.builder()
+                .message(e.getMessage())
+                .success(false)
+                .status(HttpStatus.CONFLICT)
+                .build();
+        return new ResponseEntity<>(response, HttpStatus.CONFLICT);
+    }
+
     @ExceptionHandler(BadCredentialsException.class)
     public ResponseEntity<ApiResponseMessage> handleBadCredentials(BadCredentialsException e) {
         ApiResponseMessage response = ApiResponseMessage.builder()

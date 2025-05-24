@@ -34,3 +34,4 @@ build/
 **/.env
 **/docker.env
 **/images
+**/docker-commands.txt

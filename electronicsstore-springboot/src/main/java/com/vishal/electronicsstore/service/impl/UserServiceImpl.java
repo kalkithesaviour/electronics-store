@@ -1,9 +1,11 @@
 package com.vishal.electronicsstore.service.impl;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -21,11 +23,14 @@ import com.vishal.electronicsstore.dto.UserDto;
 import com.vishal.electronicsstore.entity.Role;
 import com.vishal.electronicsstore.entity.User;
 import com.vishal.electronicsstore.exception.ResourceNotFoundException;
+import com.vishal.electronicsstore.exception.UserAlreadyExistsException;
+import com.vishal.electronicsstore.repository.RefreshTokenRepository;
 import com.vishal.electronicsstore.repository.RoleRepository;
 import com.vishal.electronicsstore.repository.UserRepository;
 import com.vishal.electronicsstore.service.UserService;
 import com.vishal.electronicsstore.util.PageableUtil;
 
+import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 
 @Service
@@ -38,21 +43,29 @@ public class UserServiceImpl implements UserService {
     private final ModelMapper modelMapper;
     private final PasswordEncoder passwordEncoder;
     private final RoleRepository roleRepository;
+    private final RefreshTokenRepository refreshTokenRepository;
 
     @Autowired
     public UserServiceImpl(
             UserRepository userRepository,
             ModelMapper modelMapper,
             PasswordEncoder passwordEncoder,
-            RoleRepository roleRepository) {
+            RoleRepository roleRepository,
+            RefreshTokenRepository refreshTokenRepository) {
         this.userRepository = userRepository;
         this.modelMapper = modelMapper;
         this.passwordEncoder = passwordEncoder;
         this.roleRepository = roleRepository;
+        this.refreshTokenRepository = refreshTokenRepository;
     }
 
     @Override
     public UserDto createUser(UserDto userDto) {
+        userRepository.findByEmail(userDto.getEmail())
+                .ifPresent(user -> {
+                    throw new UserAlreadyExistsException();
+                });
+
         String userId = UUID.randomUUID().toString();
         userDto.setUserId(userId);
         User user = dtoToEntity(userDto);
@@ -79,19 +92,39 @@ public class UserServiceImpl implements UserService {
         return entityToDto(updatedUser);
     }
 
+    @Transactional
     @Override
     public void deleteUser(String userId, String imagePath) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException(USER_NOT_FOUND_MESSAGE + userId));
 
-        Path path = Paths.get(imagePath, user.getUserImageName());
+        // Resolve the absolute project root (from class location, not working dir)
+        Path projectRoot;
         try {
-            Files.delete(path);
-        } catch (IOException e) {
-            log.error("User image not found in folder!");
-            e.printStackTrace();
+            Path codeSourcePath = Paths.get(
+                    UserServiceImpl.class.getProtectionDomain().getCodeSource().getLocation().toURI());
+            projectRoot = codeSourcePath.getParent().getParent(); // classes -> target -> project root
+        } catch (URISyntaxException e) {
+            throw new RuntimeException("Failed to resolve project root path", e);
         }
 
+        // Build image path
+        Path imageFilePath = projectRoot.resolve(Paths.get(imagePath, user.getUserImageName()));
+        log.info("Resolved image path: {}", imageFilePath.toAbsolutePath());
+
+        // Attempt to delete
+        try {
+            boolean deleted = Files.deleteIfExists(imageFilePath);
+            log.info("Image deleted? {}", deleted);
+        } catch (IOException e) {
+            log.error("Error deleting image file", e);
+        }
+
+        // Proceed with user deletion
+        refreshTokenRepository.deleteRefreshTokenByUserId(user.getUserId());
+        user.setRoles(new ArrayList<>(user.getRoles()));
+        user.getRoles().clear();
+        userRepository.save(user);
         userRepository.delete(user);
     }
 
