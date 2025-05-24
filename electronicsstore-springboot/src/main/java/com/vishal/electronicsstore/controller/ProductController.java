@@ -108,7 +108,7 @@ public class ProductController {
         return ResponseEntity.ok(productService.searchProducts(keyword, pageNumber, pageSize, sortBy, sortDirec));
     }
 
-    @PostMapping("/image/{productId}")
+    @PostMapping(value = "/image/{productId}", consumes = "multipart/form-data")
     public ResponseEntity<ImageResponse> uploadProductImage(
             @PathVariable String productId,
             @RequestParam MultipartFile productImage) throws IOException {

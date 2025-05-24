@@ -103,7 +103,7 @@ public class UserController {
         return ResponseEntity.ok(userService.searchUsers(keyword, pageNumber, pageSize, sortBy, sortDirec));
     }
 
-    @PostMapping("/image/{userId}")
+    @PostMapping(value = "/image/{userId}", consumes = "multipart/form-data")
     public ResponseEntity<ImageResponse> uploadUserImage(
             @PathVariable String userId,
             @RequestParam MultipartFile userImage) throws IOException {
