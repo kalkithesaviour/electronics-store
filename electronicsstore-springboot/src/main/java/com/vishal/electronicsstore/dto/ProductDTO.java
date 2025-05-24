@@ -37,6 +37,7 @@ public class ProductDto {
 
     private boolean stock;
 
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private String productImage;
 
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)

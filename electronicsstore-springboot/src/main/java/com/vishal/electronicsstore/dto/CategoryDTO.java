@@ -26,6 +26,7 @@ public class CategoryDto {
     @NotBlank(message = "Description required!")
     private String description;
 
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private String categoryImage;
 
 }

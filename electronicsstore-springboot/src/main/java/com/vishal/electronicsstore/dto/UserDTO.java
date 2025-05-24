@@ -7,7 +7,6 @@ import jakarta.validation.constraints.Size;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.vishal.electronicsstore.validator.ImageName;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
@@ -46,7 +45,7 @@ public class UserDto {
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private List<RoleDto> roles;
 
-    @ImageName
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private String userImageName;
 
 }
