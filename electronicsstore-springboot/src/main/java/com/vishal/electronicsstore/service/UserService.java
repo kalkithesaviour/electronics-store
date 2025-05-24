@@ -9,6 +9,8 @@ public interface UserService {
 
     UserDto updateUser(UserDto userDto, String userId);
 
+    void updateImageOfUser(String imageName, String userId);
+
     void deleteUser(String userId, String path);
 
     PageableResponse<UserDto> getAllUsers(int pageNumber, int pageSize, String sortBy, String sortDirec);

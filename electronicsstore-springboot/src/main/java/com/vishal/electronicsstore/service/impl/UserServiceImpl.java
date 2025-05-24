@@ -92,18 +92,37 @@ public class UserServiceImpl implements UserService {
         return entityToDto(updatedUser);
     }
 
+    @Override
+    public void updateImageOfUser(String imageName, String userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException(USER_NOT_FOUND_MESSAGE + userId));
+
+        user.setUserImageName(imageName);
+        userRepository.save(user);
+    }
+
     @Transactional
     @Override
     public void deleteUser(String userId, String imagePath) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException(USER_NOT_FOUND_MESSAGE + userId));
 
-        // Resolve the absolute project root (from class location, not working dir)
+        // Resolve the absolute project root (with Docker compatibility)
         Path projectRoot;
         try {
-            Path codeSourcePath = Paths.get(
-                    UserServiceImpl.class.getProtectionDomain().getCodeSource().getLocation().toURI());
-            projectRoot = codeSourcePath.getParent().getParent(); // classes -> target -> project root
+            // Check if we're running in Docker (via environment variable)
+            String dockerBasePath = System.getenv("DOCKER_BASE_PATH");
+
+            if (dockerBasePath != null && !dockerBasePath.isEmpty()) {
+                // Docker mode - use explicit base path
+                projectRoot = Paths.get(dockerBasePath);
+                log.info("Using DOCKER_BASE_PATH: {}", projectRoot);
+            } else {
+                // Local development mode - original logic
+                Path codeSourcePath = Paths.get(
+                        UserServiceImpl.class.getProtectionDomain().getCodeSource().getLocation().toURI());
+                projectRoot = codeSourcePath.getParent().getParent();
+            }
         } catch (URISyntaxException e) {
             throw new RuntimeException("Failed to resolve project root path", e);
         }

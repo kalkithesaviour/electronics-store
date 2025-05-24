@@ -109,9 +109,7 @@ public class UserController {
             @RequestParam MultipartFile userImage) throws IOException {
         String imageName = fileService.uploadFile(userImage, imagePath);
 
-        UserDto userDto = userService.getUserById(userId);
-        userDto.setUserImageName(imageName);
-        userService.updateUser(userDto, userId);
+        userService.updateImageOfUser(imageName, userId);
 
         ImageResponse imageResponse = ImageResponse.builder()
                 .imageName(imageName)

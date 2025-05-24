@@ -3,7 +3,6 @@ package com.vishal.electronicsstore.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -31,14 +30,12 @@ public class CartController {
         this.cartService = cartService;
     }
 
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @GetMapping("/user/{userId}")
     public ResponseEntity<CartDto> getCart(@PathVariable String userId) {
         CartDto cartDto = cartService.getCartByUserId(userId);
         return ResponseEntity.ok(cartDto);
     }
 
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @PostMapping("/user/{userId}")
     public ResponseEntity<CartDto> addItemToCart(
             @RequestBody CartItemDto cartItemDto,
@@ -47,7 +44,6 @@ public class CartController {
         return ResponseEntity.ok(updatedCartDto);
     }
 
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @DeleteMapping("/cart-item/{cartItemId}")
     public ResponseEntity<ApiResponseMessage> removeItemFromCart(@PathVariable int cartItemId) {
         cartService.removeCartItemFromCart(cartItemId);
@@ -59,7 +55,6 @@ public class CartController {
         return ResponseEntity.ok(response);
     }
 
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @DeleteMapping("/user/{userId}")
     public ResponseEntity<ApiResponseMessage> clearCartByUserId(@PathVariable String userId) {
         cartService.clearCart(userId);

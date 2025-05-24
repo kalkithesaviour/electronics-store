@@ -38,23 +38,26 @@ public class SecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity security) throws Exception {
-        security.authorizeHttpRequests(request -> request
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        http.authorizeHttpRequests(request -> request
                 .requestMatchers(HttpMethod.DELETE, "/users/**").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.PUT, "/users/**").hasAnyRole("USER", "ADMIN")
+                .requestMatchers(HttpMethod.GET, "/users/search/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.GET, "/users").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.GET, "/users/**").permitAll()
                 .requestMatchers(HttpMethod.POST, "/users").permitAll()
+                .requestMatchers("/carts/**").hasAnyRole("USER", "ADMIN")
+                .requestMatchers(HttpMethod.GET, "/orders/user/**").hasAnyRole("USER", "ADMIN")
+                .requestMatchers(HttpMethod.POST, "/orders").hasAnyRole("USER", "ADMIN")
+                .requestMatchers(HttpMethod.GET, "/orders").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.DELETE, "/orders/**").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.GET, "/products/**").permitAll()
                 .requestMatchers("/products/**").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.GET, "/categories/**").permitAll()
                 .requestMatchers("/categories/**").hasRole("ADMIN")
-                .requestMatchers(HttpMethod.POST, "/auth/login",
-                        "/auth/login-with-google", "/auth/regenerate-jwt-token")
-                .permitAll()
-                .requestMatchers("/auth/**").authenticated()
                 .anyRequest().permitAll());
 
-        security.cors(corsConfigurer -> corsConfigurer.configurationSource(
+        http.cors(corsConfigurer -> corsConfigurer.configurationSource(
                 httpServletRequest -> {
                     CorsConfiguration corsConfiguration = new CorsConfiguration();
                     corsConfiguration.setAllowedOriginPatterns(List.of("*"));
@@ -65,12 +68,12 @@ public class SecurityConfig {
                     return corsConfiguration;
                 }));
 
-        security.csrf(csrfConfigurer -> csrfConfigurer.disable());
-        security.exceptionHandling(e -> e.authenticationEntryPoint(jwtAuthenticationEntryPoint));
-        security.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
-        security.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+        http.csrf(csrfConfigurer -> csrfConfigurer.disable());
+        http.exceptionHandling(e -> e.authenticationEntryPoint(jwtAuthenticationEntryPoint));
+        http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+        http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
-        return security.build();
+        return http.build();
     }
 
     @Bean

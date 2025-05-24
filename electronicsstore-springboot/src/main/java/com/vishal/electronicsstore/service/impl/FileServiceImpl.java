@@ -25,6 +25,7 @@ public class FileServiceImpl implements FileService {
 
     @Override
     public String uploadFile(MultipartFile file, String imagePath) throws IOException {
+        log.info("Image path: {}", imagePath);
         String originalFileName = file.getOriginalFilename();
         log.info("Original filename : {}", originalFileName);
 
@@ -40,18 +41,31 @@ public class FileServiceImpl implements FileService {
             String fileNameWithExtension = fileName + extension;
             log.info("New filename : {}", fileNameWithExtension);
 
-            // Resolve the absolute project root (from class location, not working dir)
+            // Resolve the absolute project root (with Docker compatibility)
             Path projectRoot;
             try {
-                Path codeSourcePath = Paths.get(
-                        UserServiceImpl.class.getProtectionDomain().getCodeSource().getLocation().toURI());
-                projectRoot = codeSourcePath.getParent().getParent(); // classes -> target -> project root
+                // Check if we're running in Docker (via environment variable)
+                String dockerBasePath = System.getenv("DOCKER_BASE_PATH");
+
+                if (dockerBasePath != null && !dockerBasePath.isEmpty()) {
+                    // Docker mode - use explicit base path
+                    projectRoot = Paths.get(dockerBasePath);
+                    log.info("Using DOCKER_BASE_PATH: {}", projectRoot);
+                } else {
+                    // Local development mode - original logic
+                    Path codeSourcePath = Paths.get(
+                            UserServiceImpl.class.getProtectionDomain().getCodeSource().getLocation().toURI());
+                    projectRoot = codeSourcePath.getParent().getParent();
+                }
             } catch (URISyntaxException e) {
                 throw new RuntimeException("Failed to resolve project root path", e);
             }
-
+            
             // Build image path
             Path imageFilePath = projectRoot.resolve(Paths.get(imagePath, fileNameWithExtension));
+
+            log.info("Resolved project root: {}", projectRoot);
+            log.info("Resolved image path: {}", imageFilePath);
 
             // Attempt to write file to the stream
             try {
